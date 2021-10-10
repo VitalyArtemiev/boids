@@ -34,7 +34,7 @@ impl App {
             boids: BoidVec::random(BOID_NUM),
             attractor:  Vec2f {x: 0.,y: 0.},
             mousePos: Vec2f {x: 0.,y: 0.},
-            screenOffset: Vec2f {x: 0.,y: 0.}        }
+            screenOffset: Vec2f {x: -512.,y: -512.}        }
     }
 
     pub(crate) fn render(&mut self, args: &RenderArgs) {
@@ -44,8 +44,12 @@ impl App {
         const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
         const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
 
-        let square = rectangle::square(0.0, 0.0, 50.0);
+        let cursor = ellipse::circle(0.,0., 12.);
+        let square = rectangle::square(0.0, 0.0, 24.0);
         let (x, y) = (args.window_size[0] / 2.0, args.window_size[1] / 2.0);
+
+        self.screenOffset.x = -x;
+        self.screenOffset.y = -y;
 
         let c = self.gl.draw_begin(args.viewport());
 
@@ -66,7 +70,8 @@ impl App {
             .transform
             .trans(x + self.attractor.x, y + self.attractor.y)
             .trans(-25.0, -25.0);
-        rectangle(BLUE, square, transform, &mut self.gl);
+
+        ellipse(BLUE, cursor, transform, &mut self.gl);
         
         self.gl.draw_end();
 

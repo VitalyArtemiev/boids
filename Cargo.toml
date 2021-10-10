@@ -10,9 +10,10 @@ edition = "2018"
 array2d = "0.2.1"
 petgraph = "0.5.1"
 rand = "0.8.3"
-derive_more = "0.99.14"
+derive_more = "0.99.16"
 
 soa_derive = "0.10.0"
+#soak
 
 piston = "0.53.0"
 piston2d-graphics = "0.40.0"
@@ -21,3 +22,4 @@ piston2d-opengl_graphics = "0.78.0"
 
 [dev-dependencies]
 quickcheck = "1.0.3"
+#proptest may be better

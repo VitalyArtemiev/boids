@@ -33,7 +33,6 @@ impl Vec2f {
 
 #[cfg(test)]
 mod tests {
-    use core::num::FpCategory::Nan;
     use crate::ops::Vec2f;
     use quickcheck::quickcheck;
 
