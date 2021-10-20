@@ -2,6 +2,7 @@ mod app;
 //mod sim_net;
 mod boids;
 mod ops;
+mod container;
 
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::OpenGL;
