@@ -36,7 +36,7 @@ fn main() {
         match e.clone() {
             Event::Input(input, _) => {app.handle_input(input)}
             Event::Loop(l) => {}
-            Event::Custom(_, _, _) => {}
+            Event::Custom(a, b, c) => {}
         }
 
         if let Some(args) = e.render_args() {
