@@ -55,10 +55,11 @@ impl App {
 
         // Clear the screen.
         clear(GREEN, &mut self.gl);
+
         for boid in self.boids.iter() {
             let transform = c
             .transform
-            .trans(x + boid.x, y + boid.y)
+            .trans(x + boid.pos.x, y + boid.pos.y)
             .rot_rad(* boid.r)
             .trans(-25.0, -25.0);
 
