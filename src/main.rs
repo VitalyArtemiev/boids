@@ -1,22 +1,21 @@
 mod app;
 //mod sim_net;
 mod boids;
-mod ops;
 mod container;
+mod ops;
 
+use crate::app::App;
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::OpenGL;
 use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderEvent, UpdateEvent};
 use piston::window::WindowSettings;
-use crate::app::App;
 use piston::Event;
 
 //static arr : Array2D<i32> = Array2D::filled_with(0, 5, 5);
 
 ///docstring
 /// assert_equals executes automatically as integration test in docs
-
 
 fn main() {
     // Change this to OpenGL::V2_1 if not working.
@@ -30,12 +29,12 @@ fn main() {
         .unwrap();
 
     // Create a new game and run it.
-    let mut app = App::new(opengl); 
+    let mut app = App::new(opengl);
 
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         match e.clone() {
-            Event::Input(input, _) => {app.handle_input(input)}
+            Event::Input(input, _) => app.handle_input(input),
             Event::Loop(l) => {}
             Event::Custom(a, b, c) => {}
         }
@@ -50,8 +49,9 @@ fn main() {
     }
 }
 
-#[cfg(test)]//only compile during cargo test
-mod tests { //unit tests
+#[cfg(test)] //only compile during cargo test
+mod tests {
+    //unit tests
     #[test] //mark fun as test
     fn it_works() {
         assert_eq!(2 + 2, 4);

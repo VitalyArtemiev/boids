@@ -43,7 +43,10 @@ impl Vec2f {
     pub fn clampret(self, max: f64) -> Vec2f {
         let l = self.len();
         if l > max {
-           return Vec2f{x: self.x / l * max, y:   self.y / l * max}
+            return Vec2f {
+                x: self.x / l * max,
+                y: self.y / l * max,
+            };
         }
         self
     }
