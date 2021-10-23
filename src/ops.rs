@@ -20,6 +20,12 @@ impl Default for Vec2f {
     }
 }
 
+impl Into<Vec2d> for Vec2f {
+    fn into(self) -> Vec2d {
+        [self.x, self.y]
+    }
+}
+
 impl Vec2f {
     pub fn abs(self) -> Vec2f {
         Vec2f {
