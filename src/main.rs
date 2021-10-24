@@ -1,5 +1,4 @@
 mod app;
-//mod sim_net;
 mod boids;
 mod container;
 mod ops;

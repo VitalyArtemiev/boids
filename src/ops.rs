@@ -56,6 +56,19 @@ impl Vec2f {
         }
         self
     }
+
+    pub fn rot_align(self, other: Vec2f) -> Vec2f {
+        let denum = other.len();
+
+        if denum == 0. {
+            return self
+        }
+
+        let cos = (other.x) / denum;
+        let sin = (1. - cos * cos).sqrt();
+
+        Vec2f { x: self.x * cos - self.y *sin, y: self.x * sin + self.y * cos}
+    }
 }
 
 #[cfg(test)]
@@ -63,12 +76,6 @@ mod tests {
     use crate::ops::Vec2f;
     use quickcheck::quickcheck;
 
-    fn test() {
-        assert_eq!(
-            Vec2f { x: 1., y: 0. } + Vec2f { x: 2., y: 3. },
-            Vec2f { x: 3., y: 3. }
-        )
-    }
     quickcheck! {
         fn clamp_works(x1: f64, y1: f64, f: f64) -> bool {
             if !(x1 + y1 +f).is_normal() || f<0.{
@@ -81,7 +88,20 @@ mod tests {
             v.len() <= f
         }
 
-        fn prop(x1: f64, y1: f64, x2: f64, y2: f64) -> bool {
+        fn rot_correct(x1: f64, y1: f64, x2: f64, y2: f64) -> bool {
+            if !(x1 + x2 + y1 + y2).is_normal() {
+                  return true
+              }
+
+            Vec2f { x: x1, y: y1 }.rot_align(Vec2f { x: x2, y: y2 });
+
+            let v = Vec2f {x: 1., y: 0.}.rot_align(Vec2f {x: 1., y: 1.});
+            println!("{:?}", v);
+
+            true
+        }
+
+        fn add_correct(x1: f64, y1: f64, x2: f64, y2: f64) -> bool {
               if !(x1 + x2 + y1 + y2).is_normal() {
                   return true
               }

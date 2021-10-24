@@ -3,25 +3,23 @@ extern crate graphics;
 extern crate opengl_graphics;
 extern crate piston;
 
-use self::piston::{Button, ButtonArgs, ButtonState, Input, Motion, MouseButton};
+use self::piston::{Button, ButtonState, Input, Motion, MouseButton};
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 
-use self::graphics::ellipse;
-use self::graphics::math::Vec2d;
 use crate::boids::{Boid, BoidVec};
 use crate::ops::Vec2f;
-use std::borrow::{Borrow, BorrowMut};
+
 
 #[derive(Default)]
 pub struct PlayerState {
-    l1: Vec2f,
-    l2: Vec2f,
-    r1: Vec2f,
-    r2: Vec2f,
-    l_pressed: bool,
-    r_pressed: bool,
+    pub l1: Vec2f,
+    pub l2: Vec2f,
+    pub r1: Vec2f,
+    pub r2: Vec2f,
+    pub l_pressed: bool,
+    pub r_pressed: bool,
 }
 
 pub struct App {
@@ -29,11 +27,11 @@ pub struct App {
 
     boids: BoidVec,
     player: PlayerState,
-    mousePos: Vec2f,
-    screenOffset: Vec2f,
+    mouse_pos: Vec2f,
+    screen_offset: Vec2f,
 }
 
-const BOID_NUM: usize = 20;
+const BOID_NUM: usize = 200;
 const BOID_SIZE: f64 = 24.;
 const CURSOR_SIZE: f64 = 12.;
 
@@ -43,26 +41,27 @@ impl App {
             gl: GlGraphics::new(gl),
             boids: BoidVec::random(BOID_NUM),
             player: Default::default(),
-            mousePos: Default::default(),
-            screenOffset: Vec2f { x: -512., y: -512. },
+            mouse_pos: Default::default(),
+            screen_offset: Vec2f { x: -512., y: -512. },
         }
     }
 
     pub(crate) fn render(&mut self, args: &RenderArgs) {
         use graphics::*;
 
-        let mut p = &self.player;
+        let p = &self.player;
 
         const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
         const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
         const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
+        const TRANSP_BLUE: [f32; 4] = [0.0, 0.0, 1.0, 0.2];
 
         let cursor = ellipse::circle(0., 0., CURSOR_SIZE);
         let square = rectangle::square(0.0, 0.0, BOID_SIZE);
         let (x, y) = (args.window_size[0] / 2.0, args.window_size[1] / 2.0);
 
-        self.screenOffset.x = -x;
-        self.screenOffset.y = -y;
+        self.screen_offset.x = -x;
+        self.screen_offset.y = -y;
 
         let c = self.gl.draw_begin(args.viewport());
 
@@ -77,7 +76,7 @@ impl App {
                 .trans(- BOID_SIZE / 2. , - BOID_SIZE / 2. );
 
             // Draw a box rotating around the middle of the screen.
-            rectangle(RED, square, transform, &mut self.gl);
+            rectangle(*boid.color, square, transform, &mut self.gl);
         }
 
         let transform = c
@@ -86,13 +85,34 @@ impl App {
             .trans(- CURSOR_SIZE / 2. , - CURSOR_SIZE / 2. );
 
 
-        ellipse(RED, cursor, transform, &mut self.gl);
+        ellipse(BLUE, cursor, transform, &mut self.gl);
 
         let transform = c
             .transform
             .trans(x + p.l2.x, y + p.l2.y)
             .trans(- CURSOR_SIZE / 2. , - CURSOR_SIZE / 2. );
 
+        ellipse(BLUE, cursor, transform, &mut self.gl);
+
+        let transform = c
+            .transform
+            .trans(x, y)
+            .trans(- CURSOR_SIZE / 2. , - CURSOR_SIZE / 2. );
+
+        line_from_to(BLUE, 3., p.l1, p.l2, transform, &mut self.gl);
+
+        let transform = c
+            .transform
+            .trans(x + p.r1.x, y + p.r1.y)
+            .trans(- CURSOR_SIZE / 2. , - CURSOR_SIZE / 2. );
+
+        ellipse(RED, cursor, transform, &mut self.gl);
+
+        let transform = c
+            .transform
+            .trans(x + p.r2.x, y + p.r2.y)
+            .trans(- CURSOR_SIZE / 2. , - CURSOR_SIZE / 2. );
+
         ellipse(RED, cursor, transform, &mut self.gl);
 
         let transform = c
@@ -100,28 +120,11 @@ impl App {
             .trans(x, y)
             .trans(- CURSOR_SIZE / 2. , - CURSOR_SIZE / 2. );
 
-        line_from_to(RED, 3., p.l1, p.l2, transform, &mut self.gl);
+        line_from_to(RED, 3., p.r1, p.r2, transform, &mut self.gl);
 
-        let transform = c
-            .transform
-            .trans(x + p.r1.x, y + p.r1.y)
-            .trans(- CURSOR_SIZE / 2. , - CURSOR_SIZE / 2. );
+        let sel_rect = rectangle::rectangle_by_corners(p.l1.x, p.l1.y, p.l2.x, p.l2.y);
 
-        ellipse(BLUE, cursor, transform, &mut self.gl);
-
-        let transform = c
-            .transform
-            .trans(x + p.r2.x, y + p.r2.y)
-            .trans(- CURSOR_SIZE / 2. , - CURSOR_SIZE / 2. );
-
-        ellipse(BLUE, cursor, transform, &mut self.gl);
-
-        let transform = c
-            .transform
-            .trans(x, y)
-            .trans(- CURSOR_SIZE / 2. , - CURSOR_SIZE / 2. );
-
-        line_from_to(BLUE, 3., p.r1, p.r2, transform, &mut self.gl);
+        rectangle(TRANSP_BLUE, sel_rect, transform, &mut self.gl);
 
         self.gl.draw_end();
 
@@ -142,16 +145,16 @@ impl App {
                         MouseButton::Left => match a.state {
                             ButtonState::Press => {
                                 p.l_pressed = true;
-                                p.l1 = self.mousePos + self.screenOffset;
-                                p.l2 = self.mousePos + self.screenOffset
+                                p.l1 = self.mouse_pos + self.screen_offset;
+                                p.l2 = self.mouse_pos + self.screen_offset
                             }
                             ButtonState::Release => p.l_pressed = false,
                         },
                         MouseButton::Right => match a.state {
                             ButtonState::Press => {
                                 p.r_pressed = true;
-                                p.r1 = self.mousePos + self.screenOffset;
-                                p.r2 = self.mousePos + self.screenOffset
+                                p.r1 = self.mouse_pos + self.screen_offset;
+                                p.r2 = self.mouse_pos + self.screen_offset
                             }
                             ButtonState::Release => p.r_pressed = false,
                         },
@@ -165,19 +168,18 @@ impl App {
                     Button::Controller(_) => {}
                     Button::Hat(_) => {}
                 }
-                //println!("code: ", a.scancode)
             }
             Input::Move(m) => match m {
                 Motion::MouseCursor(pos) => {
-                    self.mousePos = Vec2f {
+                    self.mouse_pos = Vec2f {
                         x: pos[0],
                         y: pos[1],
                     };
                     if p.l_pressed {
-                        p.l2 = self.mousePos + self.screenOffset;
+                        p.l2 = self.mouse_pos + self.screen_offset;
                     }
                     if p.r_pressed {
-                        p.r2 = self.mousePos + self.screenOffset;
+                        p.r2 = self.mouse_pos + self.screen_offset;
                     }
                 }
                 Motion::MouseRelative(_) => {}
@@ -196,6 +198,6 @@ impl App {
 
     pub(crate) fn update(&mut self, args: &UpdateArgs) {
         // Rotate 2 radians per second.
-        self.boids.upd_position(args.dt, self.player.r1);
+        self.boids.upd_position(args.dt, &self.player);
     }
 }

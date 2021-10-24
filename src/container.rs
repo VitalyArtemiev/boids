@@ -17,10 +17,18 @@ impl ContainerState {
     }
 }
 
+pub enum Goal {
+    Idle(Vec2f),
+    Column(Vec2f),
+    Front(Vec2f)
+}
+
 use crate::boids::BoidVec;
+use crate::ops::Vec2f;
 
 pub struct Container {
     pub ent: BoidVec,
+    pub goals: Vec<Goal>,
 
     pub state: ContainerState,
 }
