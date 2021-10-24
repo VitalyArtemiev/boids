@@ -58,16 +58,18 @@ impl Vec2f {
     }
 
     pub fn rot_align(self, other: Vec2f) -> Vec2f {
-        let denum = other.len();
+        //find rotation from (1; 0) to (other)
 
-        if denum == 0. {
+        let den = other.len();
+
+        if den == 0. {
             return self
         }
 
-        let cos = (other.x) / denum;
-        let sin = (1. - cos * cos).sqrt();
+        let cos = (other.x) / den; //dot product ~ cos
+        let sin = (other.y) / den; //determinant ~ sin
 
-        Vec2f { x: self.x * cos - self.y *sin, y: self.x * sin + self.y * cos}
+        Vec2f { x: self.x * cos - self.y * sin, y: self.x * sin  + self.y * cos}
     }
 }
 
@@ -75,6 +77,21 @@ impl Vec2f {
 mod tests {
     use crate::ops::Vec2f;
     use quickcheck::quickcheck;
+
+    #[test]
+    fn rot()  {
+        let v = Vec2f {x: 1., y: 1.}.rot_align(Vec2f {x: 1., y: 1.});
+        println!("{:?}", v);
+
+        let v = Vec2f {x: 1., y: 1.}.rot_align(Vec2f {x: -1., y: 1.});
+        println!("{:?}", v);
+
+        let v = Vec2f {x: 1., y: 1.}.rot_align(Vec2f {x: -1., y: -1.});
+        println!("{:?}", v);
+
+        let v = Vec2f {x: 1., y: 1.}.rot_align(Vec2f {x: 1., y: -1.});
+        println!("{:?}", v);
+    }
 
     quickcheck! {
         fn clamp_works(x1: f64, y1: f64, f: f64) -> bool {

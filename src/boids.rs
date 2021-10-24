@@ -27,7 +27,7 @@ pub struct Boid {
     pub vel: Vec2f,
     pub(crate) r: f64,
     pub state: BoidState,
-    pub color: [f32; 4]
+    pub color: [f32; 4] //todo: so far no reason to store color
 }
 
 const SPREAD: f64 = 600.;
@@ -93,7 +93,7 @@ impl BoidVec {
                 y: cur.checked_div(form_width).unwrap_or_default() as f64,
             }.rot_align(rvec) * FORMATION_SPACING;
 
-            println!("{:?}", target_offset);
+            //println!("{:?}", target_offset);
 
             /*let target_offset = if form_width != 0 {
                 Vec2f {
