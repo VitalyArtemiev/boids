@@ -22,7 +22,7 @@ pub struct App {
     world: World,
 }
 
-const BOID_NUM: usize = 200;
+const BOID_NUM: usize = 20;
 const BOID_SIZE: f64 = 24.;
 const CURSOR_SIZE: f64 = 12.;
 

@@ -154,7 +154,6 @@ mod tests {
         };
         println!("{:?}", target_offset);
 
-
         assert_ne!(target_offset, Vec2f::default());
     }
 }

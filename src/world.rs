@@ -23,4 +23,13 @@ impl World {
             groups: vec!(Container {id: 100, ent: boids, goals: vec![Idle(Vec2f::default())], state: Hot })
         }
     }
+
+    pub fn get_ids_at(self, pos: Vec2f) -> (Option<WorldId>, Option<WorldId>) {
+        for group in self.groups {
+
+        }
+
+
+        (None, None)
+    }
 }
