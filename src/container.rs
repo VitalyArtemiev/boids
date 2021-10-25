@@ -1,8 +1,10 @@
+use serde::{Serialize, Deserialize};
+
 /// Cold  means calculations only on the whole container
 /// Warm allows collision checks
 /// Hot allows per-unit operations and info
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Serialize, Deserialize)]
 pub enum ContainerState {
     Cold,
     Warm,
@@ -17,6 +19,7 @@ impl ContainerState {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub enum Goal {
     Idle(Vec2f),
     Column(Vec2f),
@@ -26,6 +29,7 @@ pub enum Goal {
 use crate::boids::BoidVec;
 use crate::ops::Vec2f;
 
+#[derive(Serialize, Deserialize)]
 pub struct Container {
     pub ent: BoidVec,
     pub goals: Vec<Goal>,
@@ -34,6 +38,10 @@ pub struct Container {
 }
 
 impl Container {
+    pub fn assign_goals(&mut self) {
+
+    }
+
     fn get_notable(id: usize) -> Option<String> {
         if id == 0 {
             return None;

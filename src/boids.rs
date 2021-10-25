@@ -1,5 +1,4 @@
-#![feature(clamp)]
-use crate::app::PlayerState;
+use crate::player::PlayerState;
 use crate::boids::BoidState::{Marching, Stationary};
 use crate::ops::Vec2f;
 use rand::Rng;
@@ -22,6 +21,7 @@ impl Default for BoidState {
 }
 
 #[derive(Copy, Clone, StructOfArray, Default, Serialize, Deserialize)]
+#[soa_derive = "Serialize, Deserialize"]
 pub struct Boid {
     pub pos: Vec2f,
     pub vel: Vec2f,
@@ -95,7 +95,7 @@ impl BoidVec {
             if dist < 1. {
                 self.state[cur] = Stationary;
                 self.vel[cur] = Vec2f::default();
-                //continue;
+                continue;
             } else {
                 self.state[cur] = Marching
             }
@@ -106,7 +106,7 @@ impl BoidVec {
                 let vec = self.pos[cur] - self.pos[i];
                 //let dist = (vec.len() + 0.1).ln() - 4.;
 
-                if vec.len() < DIST_REPEL {
+                if vec.man() < DIST_REPEL {
                     d += vec * (500.01 / self.len() as f64) /* * (-dist)*/;
                 }
             }

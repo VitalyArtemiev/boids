@@ -38,6 +38,11 @@ impl Vec2f {
         (self.x * self.x + self.y * self.y).sqrt()
     }
 
+    ///Manhattan distance
+    pub fn man(self) -> f64 {
+         self.x.abs() + self.y.abs()
+    }
+
     pub fn clamp(&mut self, max: f64) {
         let l = self.len();
         if l > max {

@@ -1,7 +1,12 @@
+#![feature(derive_default_enum)]
+
 mod app;
 mod boids;
 mod container;
 mod ops;
+mod world;
+mod player;
+
 
 use crate::app::App;
 use glutin_window::GlutinWindow as Window;
@@ -45,14 +50,5 @@ fn main() {
         if let Some(args) = e.update_args() {
             app.update(&args);
         }
-    }
-}
-
-#[cfg(test)] //only compile during cargo test
-mod tests {
-    //unit tests
-    #[test] //mark fun as test
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
     }
 }
