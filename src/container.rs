@@ -28,9 +28,12 @@ pub enum Goal {
 
 use crate::boids::BoidVec;
 use crate::ops::Vec2f;
+use crate::player::PlayerAction;
+use crate::world::WorldId;
 
 #[derive(Serialize, Deserialize)]
 pub struct Container {
+    pub id: WorldId,
     pub ent: BoidVec,
     pub goals: Vec<Goal>,
 
@@ -38,22 +41,22 @@ pub struct Container {
 }
 
 impl Container {
-    pub fn assign_goals(&mut self) {
-
+    pub fn assign_goals(&mut self, action: PlayerAction) {
+        //todo
     }
 
     fn get_notable(id: usize) -> Option<String> {
         if id == 0 {
-            return None;
+            None
         } else {
-            return Some(String::from("Hello, world!"));
+            Some(String::from("Hello, world!"))
         }
     }
 
     fn get_info(id: usize) -> String {
         match Container::get_notable(id) {
-            None => return Container::generate_info(id),
-            Some(info) => return info,
+            None => Container::generate_info(id),
+            Some(info) => info,
         }
     }
 

@@ -16,14 +16,13 @@ use crate::world::World;
 pub struct App {
     pub(crate) gl: GlGraphics, // OpenGL drawing backend.
 
-    boids: BoidVec,
     player: PlayerState,
     mouse_pos: Vec2f,
     screen_offset: Vec2f,
     world: World,
 }
 
-const BOID_NUM: usize = 4000;
+const BOID_NUM: usize = 200;
 const BOID_SIZE: f64 = 24.;
 const CURSOR_SIZE: f64 = 12.;
 
@@ -31,7 +30,6 @@ impl App {
     pub(crate) fn new(gl: OpenGL) -> Self {
         App {
             gl: GlGraphics::new(gl),
-            boids: BoidVec::random(BOID_NUM),
             player: Default::default(),
             mouse_pos: Default::default(),
             screen_offset: Vec2f { x: -512., y: -512. },
@@ -61,15 +59,17 @@ impl App {
         // Clear the screen.
         clear(GREEN, &mut self.gl);
 
-        for boid in self.boids.iter() {
-            let transform = c
-                .transform
-                .trans(x + boid.pos.x, y + boid.pos.y)
-                .rot_rad(*boid.r)
-                .trans(-BOID_SIZE / 2., -BOID_SIZE / 2.);
+        for  group in &mut self.world.groups {
+            for boid in group.ent.iter() {
+                let transform = c
+                    .transform
+                    .trans(x + boid.pos.x, y + boid.pos.y)
+                    .rot_rad(*boid.r)
+                    .trans(-BOID_SIZE / 2., -BOID_SIZE / 2.);
 
-            // Draw a box rotating around the middle of the screen.
-            rectangle(*boid.color, square, transform, &mut self.gl);
+                // Draw a box rotating around the middle of the screen.
+                rectangle(*boid.color, square, transform, &mut self.gl);
+            }
         }
 
         let transform = c
@@ -199,7 +199,10 @@ impl App {
 
     pub(crate) fn update(&mut self, args: &UpdateArgs) {
         for group in &mut self.world.groups {
-            group.assign_goals();
+            if self.player.selected.contains(&group.id) {
+                group.assign_goals(self.player.action);
+            }
+
             group.ent.upd_position(args.dt, &self.player);
         }
     }
