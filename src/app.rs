@@ -22,7 +22,7 @@ pub struct App {
     world: World,
 }
 
-const BOID_NUM: usize = 20;
+const BOID_NUM: usize = 500;
 const BOID_SIZE: f64 = 24.;
 const CURSOR_SIZE: f64 = 12.;
 
@@ -59,7 +59,7 @@ impl App {
         // Clear the screen.
         clear(GREEN, &mut self.gl);
 
-        for  group in &mut self.world.groups {
+        for group in &mut self.world.groups {
             for boid in group.ent.iter() {
                 let transform = c
                     .transform
@@ -194,7 +194,7 @@ impl App {
             Input::Close(_) => {}
         }
 
-        p.get_player_action();
+        p.get_player_action(&self.world);
     }
 
     pub(crate) fn update(&mut self, args: &UpdateArgs) {
@@ -203,7 +203,7 @@ impl App {
                 group.assign_goals(self.player.action);
             }
 
-            group.ent.upd_position(args.dt, &self.player);
+            group.process_boids(args.dt, &self.player);
         }
     }
 }

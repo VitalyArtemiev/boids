@@ -4,9 +4,8 @@ mod app;
 mod boids;
 mod container;
 mod ops;
-mod world;
 mod player;
-
+mod world;
 
 use crate::app::App;
 use glutin_window::GlutinWindow as Window;

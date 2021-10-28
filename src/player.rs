@@ -1,7 +1,7 @@
-use std::collections::HashSet;
 use crate::ops::Vec2f;
 use crate::player::PlayerAction::{Deselect, FormUp, Move, Select};
-use crate::world::{WORLD_ID, WorldId};
+use crate::world::{World, WorldId, WORLD_ID};
+use std::collections::HashSet;
 
 #[derive(Default)]
 pub struct PlayerState {
@@ -29,25 +29,25 @@ pub struct PlayerState {
     pub action: PlayerAction,
 }
 
-
-
 #[derive(Default, Copy, Clone)]
 pub enum PlayerAction {
-    #[default] None,
+    #[default]
+    None,
     Select(WorldId),
     Move(Vec2f),
     FormUp(Vec2f),
-    Deselect(WorldId)
+    Deselect(WorldId),
 }
 
 impl PlayerState {
-    pub fn get_player_action(&mut self)  {
+    pub fn get_player_action(&mut self, world: &World) {
         if self.l_click {
             return if (self.l2 - self.l1).man() < 3. {
                 self.action = Deselect(WORLD_ID) //LMB click
             } else {
+                let ids = world.get_ids_at(self.l2);
                 self.action = Select(0) //LMB drag
-            }
+            };
         }
 
         if self.r_click {
@@ -55,10 +55,9 @@ impl PlayerState {
                 self.action = Move(self.r2) //RMB click
             } else {
                 self.action = FormUp(self.r2 - self.r1) //LMB drag
-            }
+            };
         }
 
         self.action = PlayerAction::None
     }
 }
-

@@ -40,7 +40,7 @@ impl Vec2f {
 
     ///Manhattan distance
     pub fn man(self) -> f64 {
-         self.x.abs() + self.y.abs()
+        self.x.abs() + self.y.abs()
     }
 
     pub fn clamp(&mut self, max: f64) {
@@ -68,13 +68,16 @@ impl Vec2f {
         let den = other.len();
 
         if den == 0. {
-            return self
+            return self;
         }
 
         let cos = (other.x) / den; //dot product ~ cos
         let sin = (other.y) / den; //determinant ~ sin
 
-        Vec2f { x: self.x * cos - self.y * sin, y: self.x * sin  + self.y * cos}
+        Vec2f {
+            x: self.x * cos - self.y * sin,
+            y: self.x * sin + self.y * cos,
+        }
     }
 }
 
@@ -84,23 +87,23 @@ mod tests {
     use quickcheck::quickcheck;
 
     #[test]
-    fn rot()  {
-        let v = Vec2f {x: 1., y: 1.}.rot_align(Vec2f {x: 1., y: 1.});
+    fn rot() {
+        let v = Vec2f { x: 1., y: 1. }.rot_align(Vec2f { x: 1., y: 1. });
         println!("{:?}", v);
 
-        let v = Vec2f {x: 1., y: 1.}.rot_align(Vec2f {x: -1., y: 1.});
+        let v = Vec2f { x: 1., y: 1. }.rot_align(Vec2f { x: -1., y: 1. });
         println!("{:?}", v);
 
-        let v = Vec2f {x: 1., y: 1.}.rot_align(Vec2f {x: -1., y: -1.});
+        let v = Vec2f { x: 1., y: 1. }.rot_align(Vec2f { x: -1., y: -1. });
         println!("{:?}", v);
 
-        let v = Vec2f {x: 1., y: 1.}.rot_align(Vec2f {x: 1., y: -1.});
+        let v = Vec2f { x: 1., y: 1. }.rot_align(Vec2f { x: 1., y: -1. });
         println!("{:?}", v);
     }
 
     quickcheck! {
         fn clamp_works(x1: f64, y1: f64, f: f64) -> bool {
-            if !(x1 + y1 +f).is_normal() || f<0.{
+            if !(x1 + y1 + f).is_normal() || f < 0.{
                   return true
             }
 

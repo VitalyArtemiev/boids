@@ -1,6 +1,6 @@
-use crate::player::PlayerState;
 use crate::boids::BoidState::{Marching, Stationary};
 use crate::ops::Vec2f;
+use crate::player::PlayerState;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use soa_derive::StructOfArray;
@@ -27,15 +27,11 @@ pub struct Boid {
     pub vel: Vec2f,
     pub(crate) r: f64,
     pub state: BoidState,
-    pub color: [f32; 4] //todo: so far no reason to store color
+    pub color: [f32; 4], //todo: so far no reason to store color
 }
 
 const SPREAD: f64 = 600.;
 const VEL_SPREAD: f64 = 500.;
-const ACC_MAX: f64 = 1000.;
-const VEL_MAX: f64 = 100.;
-const DIST_REPEL: f64 = 20.;
-const FORMATION_SPACING: f64 = 24.;
 
 impl BoidVec {
     pub fn random(num: usize) -> BoidVec {
@@ -55,7 +51,7 @@ impl BoidVec {
                 },
                 r: rng.gen::<f64>(),
                 state: Default::default(),
-                color: [c, c, c, 1.2 - c]
+                color: [c, c, c, 1.2 - c],
             });
         }
 
@@ -71,59 +67,6 @@ impl BoidVec {
         }
 
         boids
-    }
-
-    pub fn upd_position(&mut self, dt: f64, p: &PlayerState) {
-        let lvec = p.l2 - p.l1;
-        let llen = lvec.len();
-
-        let rvec = p.r2 - p.r1;
-        let rlen = rvec.len();
-
-        let form_width = (rlen / FORMATION_SPACING).round() as usize;
-
-        for cur in 0..self.len() {
-            let target_offset = Vec2f {
-                x: cur.checked_rem(form_width).unwrap_or_default() as f64,
-                y: cur.checked_div(form_width).unwrap_or_default() as f64,
-            }.rot_align(rvec) * FORMATION_SPACING;
-
-            let target = p.r1 + target_offset;
-            let mut d = target - self.pos[cur];
-            let dist = d.len();
-
-            if dist < 1. {
-                self.state[cur] = Stationary;
-                self.vel[cur] = Vec2f::default();
-                continue;
-            } else {
-                self.state[cur] = Marching
-            }
-
-            d.clamp(ACC_MAX / 10.);
-
-            for i in 0..self.len() {//todo: this loop is problematic
-                let vec = self.pos[cur] - self.pos[i];
-                //let dist = (vec.len() + 0.1).ln() - 4.;
-
-                if vec.man() < DIST_REPEL {
-                    d += vec * (500.01 / self.len() as f64) /* * (-dist)*/;
-                }
-            }
-
-            d.clamp(ACC_MAX);
-
-            self.vel[cur] += d * dt;
-            self.vel[cur].clamp( VEL_MAX.min(dist) );
-
-            self.pos[cur] += self.vel[cur] * dt;
-
-            let heading: f64 = f64::atan2(self.vel[cur].y, self.vel[cur].x);
-
-            if heading.is_normal() {
-                self.r[cur] = heading;
-            }
-        }
     }
 }
 
@@ -157,4 +100,3 @@ mod tests {
         assert_ne!(target_offset, Vec2f::default());
     }
 }
-
