@@ -2,6 +2,7 @@ use crate::ops::Vec2f;
 use crate::player::PlayerAction::{Deselect, FormUp, Move, Select};
 use crate::world::{World, WorldId, WORLD_ID};
 use std::collections::HashSet;
+use crate::app::CLICK_PRECISION;
 
 #[derive(Default)]
 pub struct PlayerState {
@@ -42,7 +43,7 @@ pub enum PlayerAction {
 impl PlayerState {
     pub fn get_player_action(&mut self, world: &World) {
         if self.l_click {
-            return if (self.l2 - self.l1).man() < 3. {
+            return if (self.l2 - self.l1).man() < CLICK_PRECISION {
                 self.action = Deselect(WORLD_ID) //LMB click
             } else {
                 let ids = world.get_ids_at(self.l2);

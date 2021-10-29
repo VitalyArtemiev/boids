@@ -22,9 +22,9 @@ pub struct App {
     world: World,
 }
 
-const BOID_NUM: usize = 500;
 const BOID_SIZE: f64 = 24.;
 const CURSOR_SIZE: f64 = 12.;
+pub const CLICK_PRECISION: f64 = 4.;
 
 impl App {
     pub(crate) fn new(gl: OpenGL) -> Self {
@@ -33,7 +33,7 @@ impl App {
             player: Default::default(),
             mouse_pos: Default::default(),
             screen_offset: Vec2f { x: -512., y: -512. },
-            world: World::single_container(BoidVec::random(BOID_NUM)),
+            world: World::single_container(),
         }
     }
 

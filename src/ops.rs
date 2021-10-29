@@ -1,10 +1,10 @@
 //use std::ops::Add;
-use derive_more::{Add, AddAssign, Display, From, Into, Mul, Neg, Sub, SubAssign};
+use derive_more::{Add, Mul, Neg, Sub, AddAssign, SubAssign, MulAssign, Display, From, Into,  };
 use graphics::math::Vec2d;
 use serde::{Deserialize, Serialize};
 
 #[derive(
-    Debug, Copy, Clone, PartialEq, Neg, Add, Sub, AddAssign, SubAssign, Mul, Serialize, Deserialize,
+    Debug, Copy, Clone, PartialEq, Neg, Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Serialize, Deserialize,
 )]
 pub struct Vec2<T> {
     pub(crate) x: T,
