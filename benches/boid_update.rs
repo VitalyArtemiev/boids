@@ -4,16 +4,10 @@ extern crate test;
 use test::Bencher;
 use boids::container::{Container, ContainerState};
 use boids::boids::*;
+use boids::ops::Vec2f;
 use boids::player::PlayerState;
 
 const BOID_NUM: usize = 2000;
-
-#[bench]
-fn bench_xor_1000_ints(b: &mut Bencher) {
-    b.iter(|| {
-        (0..1000).fold(0, |old, new| old ^ new);
-    });
-}
 
 #[bench]
 fn bench_boids(b: &mut Bencher) {
@@ -21,7 +15,7 @@ fn bench_boids(b: &mut Bencher) {
         id: 0,
         center: Default::default(),
         radius: 0.0,
-        ent: BoidVec::random(BOID_NUM),
+        ent: BoidVec::random(Vec2f::default(), BOID_NUM),
         goals: vec![],
         state: ContainerState::Cold
     };

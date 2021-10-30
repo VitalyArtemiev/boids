@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
     Debug, Copy, Clone, PartialEq, Neg, Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Serialize, Deserialize,
 )]
 pub struct Vec2<T> {
-    pub(crate) x: T,
-    pub(crate) y: T,
+    pub x: T,
+    pub y: T,
 }
 
 pub type Vec2f = Vec2<f64>;

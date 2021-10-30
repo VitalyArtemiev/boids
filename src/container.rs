@@ -127,14 +127,14 @@ impl Container {
         todo!()
     }
 
+    //todo: bench normal loop; should be zero-cost
     pub fn get_boid_at(&self, c: Vec2f) -> Option<WorldId> {
-        let mut i = 0;
-        for p in &self.ent.pos {
+        for (i, p) in self.ent.pos.iter().enumerate() {
             if (*p - c).man() < CLICK_PRECISION {
-                return Some(self.id + i)
+                return Some(self.id + i + 1)
             }
         }
-        return None
+        None
     }
 
     pub fn process_boids(&mut self, dt: f64, p: &PlayerState) {

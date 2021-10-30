@@ -24,7 +24,7 @@ pub struct App {
 
 const BOID_SIZE: f64 = 24.;
 const CURSOR_SIZE: f64 = 12.;
-pub const CLICK_PRECISION: f64 = 40000.;
+pub const CLICK_PRECISION: f64 = 12.;
 
 impl App {
     pub(crate) fn new(gl: OpenGL) -> Self {
