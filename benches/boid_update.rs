@@ -32,8 +32,6 @@ fn bench_boids(b: &mut Bencher) {
 
     b.iter(|| {
         c.process_boids(dt, &p);
-
-        (0..1000).fold(0, |old, new| old ^ new);
     });
 }
 

@@ -1,4 +1,5 @@
 #![feature(derive_default_enum)]
+#![feature(drain_filter)]
 
 pub mod app;
 pub mod boids;

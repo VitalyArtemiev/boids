@@ -33,6 +33,7 @@ pub enum Goal {
 }
 
 use crate::boids::BoidVec;
+use crate::container::Goal::Idle;
 use crate::ops::Vec2f;
 use crate::player::{PlayerAction, PlayerState};
 use crate::world::{Identifiable, WORLD_ID, WorldId};
@@ -66,7 +67,36 @@ impl Identifiable for Container {
     }
 }
 
+pub fn is_container(id: WorldId) -> bool {
+    id % CONTAINER_CAPACITY == 0
+}
+
+pub fn is_boid_of_container(boid: WorldId, container: WorldId) -> bool {
+    boid - boid % CONTAINER_CAPACITY == container
+}
+
+pub fn get_boid_container(id: WorldId) -> Option<WorldId> {
+    let result = id - id % CONTAINER_CAPACITY;
+
+    if result < CONTAINER_CAPACITY {
+        None
+    } else {
+        Some(result)
+    }
+}
+
 impl Container {
+    pub fn new(pos: Vec2f, num_boids: usize) -> Self {
+        Container {
+            id: Container::generate_id(),
+            center: pos,
+            radius: 0.0,
+            ent: BoidVec::random(pos, num_boids),
+            goals: vec![Idle(pos)],
+            state: ContainerState::Hot
+        }
+    }
+
     pub fn assign_goals(&mut self, action: PlayerAction) {
         //todo
     }
@@ -97,14 +127,14 @@ impl Container {
         todo!()
     }
 
-    pub fn get_boid_at(&self, c: Vec2f) -> WorldId {
+    pub fn get_boid_at(&self, c: Vec2f) -> Option<WorldId> {
         let mut i = 0;
         for p in &self.ent.pos {
             if (*p - c).man() < CLICK_PRECISION {
-                return self.id + i
+                return Some(self.id + i)
             }
         }
-        return WORLD_ID
+        return None
     }
 
     pub fn process_boids(&mut self, dt: f64, p: &PlayerState) {
@@ -174,5 +204,32 @@ impl Container {
 
         self.center = center;
         self.radius = max_dist;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::ops::Vec2f;
+    use quickcheck::quickcheck;
+    use crate::container::{Container, ContainerState, get_boid_container, is_container};
+    use crate::boids::BoidVec;
+    use crate::world::Identifiable;
+
+    #[test]
+    fn container_id_is_correct() {
+        let c = Container {
+            id: Container::generate_id(),
+            center: Default::default(),
+            radius: 0.0,
+            ent: BoidVec::zeros(10),
+            goals: vec![],
+            state: ContainerState::Cold
+        };
+
+        assert!(is_container(c.id));
+
+        let id = get_boid_container(c.get_boid_at(c.center).unwrap_or(c.id + 1));
+
+        assert_eq!(id.unwrap(), c.id)
     }
 }

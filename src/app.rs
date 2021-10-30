@@ -24,7 +24,7 @@ pub struct App {
 
 const BOID_SIZE: f64 = 24.;
 const CURSOR_SIZE: f64 = 12.;
-pub const CLICK_PRECISION: f64 = 4.;
+pub const CLICK_PRECISION: f64 = 40000.;
 
 impl App {
     pub(crate) fn new(gl: OpenGL) -> Self {
@@ -144,7 +144,7 @@ impl App {
                         }
                         ButtonState::Release => {
                             p.l_pressed = false;
-                            p.l_click = false;
+                            p.l_click = true;
                         }
                     },
                     MouseButton::Right => match a.state {
@@ -155,7 +155,7 @@ impl App {
                         }
                         ButtonState::Release => {
                             p.r_pressed = false;
-                            p.r_click = false;
+                            p.r_click = true;
                         }
                     },
                     MouseButton::Middle => {}
@@ -194,7 +194,7 @@ impl App {
             Input::Close(_) => {}
         }
 
-        p.get_player_action(&self.world);
+        p.update_player_action(&self.world);
     }
 
     pub(crate) fn update(&mut self, args: &UpdateArgs) {

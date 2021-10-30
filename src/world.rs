@@ -23,32 +23,34 @@ const BOID_NUM: usize = 500;
 impl World {
     pub fn single_container() -> World {
         World {
-            groups: vec![Container {
-                id: Container::generate_id(),
-                center: Default::default(),
-                radius: 0.0,
-                ent: BoidVec::random(BOID_NUM),
-                goals: vec![Idle(Vec2f::default())],
-                state: Hot,
-            }],
+            groups: vec![Container::new(Vec2f::default(),BOID_NUM)],
         }
     }
 
-    pub fn get_ids_at(&self, pos: Vec2f) -> (WorldId, WorldId) {
-        let mut sel = [WORLD_ID; 2];
+    pub fn get_ids_at(&self, pos: Vec2f) -> Vec<WorldId> {
+        let mut sel = vec![];
 
-        let mut i = 0;
         for group in self.groups.iter() {
             if group.is_in_bounds(pos) {
-                sel[i] = group.get_boid_at(pos);
-                i += 1;
-            }
-            if i == 2 {
-                break
+                sel.push(group.id);
+                if let Some(b) = group.get_boid_at(pos) {
+                    sel.push(b);
+                }
             }
         }
 
-        (sel[0], sel[1])
+        sel
+    }
+
+    pub(crate) fn get_ids_in_rect(&self, p0: Vec2f, p1: Vec2f) -> Vec<WorldId> {
+        let mut sel = vec![];
+
+        for group in self.groups.iter() {
+
+
+        }
+
+        sel
     }
 }
 

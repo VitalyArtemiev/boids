@@ -34,14 +34,14 @@ const SPREAD: f64 = 600.;
 const VEL_SPREAD: f64 = 500.;
 
 impl BoidVec {
-    pub fn random(num: usize) -> BoidVec {
+    pub fn random(pos: Vec2f, num: usize) -> BoidVec {
         let mut boids = BoidVec::with_capacity(num);
         let mut rng = rand::thread_rng();
 
         for i in 0..num {
             let c = i as f32 / num as f32;
             boids.push(Boid {
-                pos: Vec2f {
+                pos: pos + Vec2f {
                     x: rng.gen::<f64>() * SPREAD,
                     y: rng.gen::<f64>() * SPREAD,
                 },
