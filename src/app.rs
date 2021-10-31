@@ -3,7 +3,7 @@ extern crate graphics;
 extern crate opengl_graphics;
 extern crate piston;
 
-use self::piston::{Button, ButtonState, Input, Motion, MouseButton};
+use self::piston::{Button, ButtonState, Input, Key, Motion, MouseButton};
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
@@ -42,10 +42,11 @@ impl App {
 
         let p = &self.player;
 
-        const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
+        const GREEN: [f32; 4] = [0.1, 0.5, 0.1, 1.0];
         const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
         const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
         const TRANSP_BLUE: [f32; 4] = [0.0, 0.0, 1.0, 0.2];
+        const TRANSP_ORANGE: [f32; 4] = [0.5, 0.1, 0.0, 0.1];
 
         let cursor = ellipse::circle(0., 0., CURSOR_SIZE);
         let square = rectangle::square(0.0, 0.0, BOID_SIZE);
@@ -70,6 +71,14 @@ impl App {
                 // Draw a box rotating around the middle of the screen.
                 rectangle(*boid.color, square, transform, &mut self.gl);
             }
+
+            let transform = c
+                .transform
+                .trans(x + group.center.x, y + group.center.y);
+
+            let group_area = ellipse::circle(0., 0., group.radius);
+
+            ellipse(TRANSP_ORANGE, group_area, transform, &mut self.gl);
         }
 
         let transform = c
@@ -133,7 +142,28 @@ impl App {
 
         match input_event {
             Input::Button(a) => match a.button {
-                Button::Keyboard(_) => {}
+                Button::Keyboard(k) => match k {
+                    Key::A => {}
+                    Key::D => {}
+                    Key::S => {}
+                    Key::W => {}
+                    Key::Right => {}
+                    Key::Left => {}
+                    Key::Down => {}
+                    Key::Up => {}
+                    Key::LCtrl => match a.state{
+                        ButtonState::Press => {p.ctrl_pressed = true}
+                        ButtonState::Release => {p.ctrl_pressed = false}
+                    }
+                    Key::LShift => {}
+                    Key::LAlt => {}
+                    Key::LGui => {}
+                    Key::RCtrl => {}
+                    Key::RShift => {}
+                    Key::RAlt => {}
+                    Key::RGui => {}
+                    _ => {}
+                }
                 Button::Mouse(mb) => match mb {
                     MouseButton::Unknown => {}
                     MouseButton::Left => match a.state {

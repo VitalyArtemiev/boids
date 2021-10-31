@@ -1,5 +1,6 @@
 #![feature(derive_default_enum)]
 #![feature(drain_filter)]
+#![feature(hash_drain_filter)]
 
 mod app;
 mod boids;

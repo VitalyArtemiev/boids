@@ -60,6 +60,9 @@ const FORMATION_SPACING: f64 = 24.;
 
 pub static NUM_CONTAINERS: AtomicUsize = AtomicUsize::new(0);
 
+//const STRUCTURE_BITS: usize = 0b0011_1111_1111_0000_0000_0000_0000_0000; this is more robust
+//const CONTAINER_BITS: usize = 0b0000_0000_0000_1111_1111_1100_0000_0000;
+
 impl Identifiable for Container {
     fn generate_id() -> WorldId {
         let nc = NUM_CONTAINERS.fetch_add(1, Ordering::Relaxed);
@@ -76,6 +79,7 @@ pub fn is_boid_of_container(boid: WorldId, container: WorldId) -> bool {
 }
 
 pub fn get_boid_container(id: WorldId) -> Option<WorldId> {
+    //boid & CONTAINER_BITS shr 10;
     let result = id - id % CONTAINER_CAPACITY;
 
     if result < CONTAINER_CAPACITY {
@@ -87,6 +91,8 @@ pub fn get_boid_container(id: WorldId) -> Option<WorldId> {
 
 impl Container {
     pub fn new(pos: Vec2f, num_boids: usize) -> Self {
+        assert!(num_boids < CONTAINER_CAPACITY);
+
         Container {
             id: Container::generate_id(),
             center: pos,
