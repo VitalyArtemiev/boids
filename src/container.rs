@@ -1,9 +1,11 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 use graphics::math::inside_triangle;
 use graphics::types::Triangle;
+use rand::Rng;
 
 use crate::boids::BoidState::{Marching, Stationary};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
+use serde::de::Error;
 use crate::app::CLICK_PRECISION;
 
 /// Cold  means calculations only on the whole container
@@ -29,14 +31,34 @@ impl ContainerState {
 pub enum Goal {
     Idle(Vec2f),
     Column(Vec2f),
-    Front(Vec2f),
+    Front(Vec2f, Vec2f, Vec2f),
 }
 
 use crate::boids::BoidVec;
 use crate::container::Goal::Idle;
 use crate::ops::Vec2f;
 use crate::player::{PlayerAction, PlayerState};
+use crate::player::PlayerAction::FormUp;
 use crate::world::{Identifiable, WORLD_ID, WorldId};
+
+pub type FormationFunction = fn(usize, usize) -> Vec2f;
+pub fn default_formation(index: usize, _: usize) -> Vec2f {
+    let mut rng = rand::thread_rng();
+    Vec2f {
+        x: rng.gen::<f64>() * FORMATION_SPACING,
+        y: rng.gen::<f64>() * FORMATION_SPACING,
+    }
+}
+pub fn crutch() -> FormationFunction {
+    default_formation
+}
+
+pub fn phalanx_formation (index: usize, width: usize) -> Vec2f {
+        Vec2f {
+            x: index.checked_rem(width).unwrap_or_default() as f64,
+            y: index.checked_div(width).unwrap_or_default() as f64,
+        }
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct Container {
@@ -50,6 +72,11 @@ pub struct Container {
     pub goals: Vec<Goal>,
 
     pub state: ContainerState,
+
+    #[serde(skip)]
+    #[serde(default = "crate::container::crutch")]
+
+    pub formation: FormationFunction,
 }
 
 const CONTAINER_CAPACITY: usize = 1024;
@@ -99,12 +126,23 @@ impl Container {
             radius: 0.0,
             ent: BoidVec::random(pos, num_boids),
             goals: vec![Idle(pos)],
-            state: ContainerState::Hot
+            state: ContainerState::Hot,
+            formation: default_formation,
         }
     }
 
     pub fn assign_goals(&mut self, action: PlayerAction) {
-        //todo
+        match action {
+            PlayerAction::None => {}
+            PlayerAction::Select(_) => {}
+            PlayerAction::Move(pos) => {}
+            PlayerAction::FormUp(pos1, pos2) => {
+                let center_front = (pos2 - pos1) * 0.5;
+                let dir = center_front - self.center;
+                self.goals.push(Goal::Front(pos2, pos1, dir))
+            }
+            PlayerAction::Deselect(_) => {}
+        }
     }
 
     pub(crate) fn is_in_bounds(&self, p: Vec2f) -> bool {
@@ -144,6 +182,18 @@ impl Container {
     }
 
     pub fn process_boids(&mut self, dt: f64, p: &PlayerState) {
+        match self.goals.first() {
+            None => {}
+            Some(goal) =>
+                match goal {
+                    Idle(_) => {}
+                    Goal::Column(_) => {}
+                    Goal::Front(pos1, pos2, dir) => {
+
+                    }
+                }
+        }
+
         let mut center = Vec2f::default();
         let mut max_dist = 0.;
 
@@ -161,10 +211,7 @@ impl Container {
             center += b.pos[cur];
             max_dist = (b.pos[cur] - self.center).len().max(max_dist);
 
-            let target_offset = Vec2f {
-                x: cur.checked_rem(form_width).unwrap_or_default() as f64,
-                y: cur.checked_div(form_width).unwrap_or_default() as f64,
-            }
+            let target_offset = (self.formation) (cur, form_width)
             .rot_align(rvec)
                 * FORMATION_SPACING;
 
@@ -229,7 +276,8 @@ mod tests {
             radius: 0.0,
             ent: BoidVec::zeros(10),
             goals: vec![],
-            state: ContainerState::Cold
+            state: ContainerState::Cold,
+            formation: |_, _| {Vec2f::default()}
         };
 
         assert!(is_container(c.id));

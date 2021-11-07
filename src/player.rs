@@ -40,7 +40,7 @@ pub enum PlayerAction {
     None,
     Select(WorldId),
     Move(Vec2f),
-    FormUp(Vec2f),
+    FormUp(Vec2f, Vec2f),
     Deselect(WorldId),
 }
 
@@ -127,7 +127,7 @@ impl PlayerState {
                 self.action = Move(self.r2) //RMB click
             } else {
                 //println!("RDRAG");
-                self.action = FormUp(self.r2 - self.r1) //RMB drag
+                self.action = FormUp(self.r2, self.r1) //RMB drag
             };
         } else {
             self.action = PlayerAction::None
