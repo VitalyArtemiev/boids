@@ -10,6 +10,7 @@ use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 
 use crate::boids::{Boid, BoidVec};
 use crate::container::Goal;
+use crate::drawable::Drawable;
 use crate::ops::Vec2f;
 use crate::player::PlayerState;
 use crate::world::World;
@@ -63,45 +64,7 @@ impl App {
         clear(GREEN, &mut self.gl);
 
         for group in &mut self.world.groups {
-            for boid in group.ent.iter() {
-                let transform = c
-                    .transform
-                    .trans(x + boid.pos.x, y + boid.pos.y)
-                    .rot_rad(*boid.r)
-                    .trans(-BOID_SIZE / 2., -BOID_SIZE / 2.);
-
-                // Draw a box rotating around the middle of the screen.
-                rectangle(*boid.color, square, transform, &mut self.gl);
-            }
-
-            let transform = c.transform.trans(x + group.center.x, y + group.center.y);
-
-            let group_area = ellipse::circle(0., 0., group.radius);
-
-            if self.player.selected.contains(&group.id) {
-                ellipse(TRANSP_RED, group_area, transform, &mut self.gl);
-            } else {
-                ellipse(TRANSP_ORANGE, group_area, transform, &mut self.gl);
-            }
-
-            if let Some(goal) = group.goals.front() {
-                let transform = c
-                    .transform
-                    .trans(x, y)
-                    .trans(-CURSOR_SIZE / 2., -CURSOR_SIZE / 2.);
-
-                match goal {
-                    Goal::Idle(_) => {}
-                    Goal::Hold => {}
-                    Goal::Move(_, _) => {}
-                    Goal::Column(_) => {}
-                    Goal::Front(p1, p2, d) => {
-                        line_from_to(TRANSP_RED, 5., *p1, *p2, transform, &mut self.gl);
-                        line_from_to(TRANSP_RED, 5., group.center, group.center + *d, transform, &mut self.gl);
-                    }
-                }
-
-            }
+            group.draw(c, self.screen_offset, &mut self.gl)
         }
 
         let transform = c
@@ -227,6 +190,7 @@ impl App {
                         x: pos[0],
                         y: pos[1],
                     };
+                    println!("{:?}", self.mouse_pos);
                     if p.l_pressed {
                         p.l2 = self.mouse_pos + self.screen_offset;
                     }
