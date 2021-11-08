@@ -6,8 +6,8 @@ use boids::boids::*;
 use boids::container::{Container, ContainerState};
 use boids::ops::{Vec2, Vec2f};
 use boids::player::PlayerState;
-use core::hint::black_box;
-use test::Bencher;
+//use core::hint::black_box;
+use test::{Bencher, black_box};
 
 const ENT_NUM: usize = 2000;
 
