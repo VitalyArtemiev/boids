@@ -8,7 +8,7 @@ use lazy_static::lazy_static;
 use std::sync::atomic::AtomicPtr;
 
 pub trait Drawable {
-    fn draw<G>(&self, c: Context, offset: Vec2f, g: &mut G)
+    fn draw<G>(&self, c: Context, g: &mut G)
     where
         G: Graphics;
 }
@@ -20,14 +20,14 @@ lazy_static! {
 }
 
 impl Drawable for BoidRef<'_> {
-    fn draw<G>(&self, c: Context, offset: Vec2f, g: &mut G)
+    fn draw<G>(&self, c: Context, g: &mut G)
     where
         G: Graphics,
     {
         println!("draw");
         let transform = c
             .transform
-            .trans( - offset.x + self.pos.x, - offset.y + self.pos.y)
+            .trans(self.pos.x, self.pos.y)
             .rot_rad(*self.r)
             .trans(-BOID_SIZE / 2., -BOID_SIZE / 2.);
 
@@ -45,16 +45,16 @@ const TRANSP_ORANGE: [f32; 4] = [0.5, 0.1, 0.0, 0.1];
 const TRANSP_RED: [f32; 4] = [0.9, 0.1, 0.0, 0.1];
 
 impl Drawable for Container {
-    fn draw<G>(&self, c: Context, offset: Vec2f, g: &mut G)
+    fn draw<G>(&self, c: Context, g: &mut G)
     where
         G: Graphics,
     {
         for boid in self.ent.iter() {
             //let b: Boid = boid;
-            boid.draw(c, offset, g);
+            boid.draw(c, g);
         }
 
-        let transform = c.transform.trans( - offset.x + self.center.x, - offset.y + self.center.y);
+        let transform = c.transform.trans(self.center.x, self.center.y);
 
         let self_area = ellipse::circle(0., 0., self.radius);
 
@@ -67,7 +67,6 @@ impl Drawable for Container {
         if let Some(goal) = self.goals.front() {
             let transform = c
                 .transform
-                .trans( - offset.x, - offset.y)
                 .trans(-CURSOR_SIZE / 2., -CURSOR_SIZE / 2.);
 
             match goal {

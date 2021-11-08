@@ -59,7 +59,7 @@ impl App {
         clear(GREEN, &mut self.gl);
 
         for group in &mut self.world.groups {
-            group.draw(c, Vec2f::default(), &mut self.gl)
+            group.draw(c,&mut self.gl)
         }
 
         let transform = c
