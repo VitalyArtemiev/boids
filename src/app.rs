@@ -107,10 +107,6 @@ impl App {
         rectangle(TRANSP_BLUE, sel_rect, transform, &mut self.gl);
 
         self.gl.draw_end();
-
-        //self.gl.draw(args.viewport(), |c, gl| {
-        //
-        //});
     }
 
     pub fn handle_input(&mut self, input_event: Input) {
@@ -210,10 +206,13 @@ impl App {
     pub(crate) fn update(&mut self, args: &UpdateArgs) {
         for group in &mut self.world.groups {
             if self.player.selected.contains(&group.id) {
+                group.selected = true;
                 group.assign_goals(self.player.action);
+            } else {
+                group.selected = false;
             }
 
-            group.process_boids(args.dt, &self.player);
+            group.process_boids(args.dt);
         }
     }
 }

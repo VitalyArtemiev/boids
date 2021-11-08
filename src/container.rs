@@ -50,6 +50,8 @@ use crate::world::{Identifiable, WORLD_ID, WorldId};
 pub struct Container {
     pub id: WorldId,
 
+    pub selected: bool,
+
     pub center: Vec2f,
     pub direction: Vec2f,
     pub radius: f64,
@@ -104,12 +106,19 @@ pub fn get_boid_container(id: WorldId) -> Option<WorldId> {
     }
 }
 
+impl Default for Container {
+    fn default() -> Self {
+        Container::new(Vec2f::default(), 20)
+    }
+}
+
 impl Container {
     pub fn new(pos: Vec2f, num_boids: usize) -> Self {
         assert!(num_boids < CONTAINER_CAPACITY);
 
         Container {
             id: Container::generate_id(),
+            selected: false,
             center: pos,
             direction: Vec2f{x: 1.,y: 0.},
             radius: 0.0,
@@ -182,7 +191,7 @@ impl Container {
         None
     }
 
-    pub fn process_boids(&mut self, dt: f64, p: &PlayerState) {
+    pub fn process_boids(&mut self, dt: f64) {
         let mut cum_dist_from_dest = 0.0;
 
         let mut pos1 = Vec2f::default();
@@ -207,6 +216,8 @@ impl Container {
                 }
 
                 Goal::Move(p, d) => {
+                    pos1 = *p;
+                    pos2 = *p;
                     dir = *d;
                 }
             }
@@ -232,7 +243,7 @@ impl Container {
             let target_offset =
                 p_f(cur, form_width, rvec.normalise(), dir.normalise())* FORMATION_SPACING;
 
-            let target = p.r1 + target_offset;
+            let target = pos1 + target_offset;
             let mut d = target - b.pos[cur];
             let dist = d.len();
             cum_dist_from_dest += dist;
@@ -296,16 +307,7 @@ mod tests {
 
     #[test]
     fn container_id_is_correct() {
-        let c = Container {
-            id: Container::generate_id(),
-            center: Default::default(),
-            direction: Vec2f {x: 1.,y: 0.},
-            radius: 0.0,
-            ent: BoidVec::zeros(10),
-            goals: VecDeque::new(),
-            state: ContainerState::Cold,
-            formation: |_, _| Vec2f::default(),
-        };
+        let c = Container::default();
 
         assert!(is_container(c.id));
 

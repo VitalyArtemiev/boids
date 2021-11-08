@@ -58,11 +58,11 @@ impl Drawable for Container {
 
         let self_area = ellipse::circle(0., 0., self.radius);
 
-        /*if self.player.selected.contains(&self.id) {
+        if self.selected {
             ellipse(TRANSP_RED, self_area, transform, g);
         } else {
             ellipse(TRANSP_ORANGE, self_area, transform, g);
-        }*/
+        }
 
         if let Some(goal) = self.goals.front() {
             let transform = c

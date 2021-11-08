@@ -18,6 +18,6 @@ fn bench_boids(b: &mut Bencher) {
     let dt = 0.01;
 
     b.iter(|| {
-        c.process_boids(dt, &p);
+        c.process_boids(dt);
     });
 }
