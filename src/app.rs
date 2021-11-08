@@ -20,7 +20,6 @@ pub struct App {
 
     player: PlayerState,
     mouse_pos: Vec2f,
-    screen_offset: Vec2f,
     world: World,
 }
 
@@ -34,7 +33,6 @@ impl App {
             gl: GlGraphics::new(gl),
             player: Default::default(),
             mouse_pos: Default::default(),
-            screen_offset: Vec2f { x: -512., y: -512. },
             world: World::single_container(),
         }
     }
@@ -53,10 +51,7 @@ impl App {
 
         let cursor = ellipse::circle(0., 0., CURSOR_SIZE);
         let square = rectangle::square(0.0, 0.0, BOID_SIZE);
-        let (x, y) = (args.window_size[0] / 2.0, args.window_size[1] / 2.0);
 
-        self.screen_offset.x = -x;
-        self.screen_offset.y = -y;
 
         let c = self.gl.draw_begin(args.viewport());
 
@@ -64,47 +59,45 @@ impl App {
         clear(GREEN, &mut self.gl);
 
         for group in &mut self.world.groups {
-            group.draw(c, self.screen_offset, &mut self.gl)
+            group.draw(c, Vec2f::default(), &mut self.gl)
         }
 
         let transform = c
             .transform
-            .trans(x + p.l1.x, y + p.l1.y)
+            .trans(p.l1.x, p.l1.y)
             .trans(-CURSOR_SIZE / 2., -CURSOR_SIZE / 2.);
 
         ellipse(BLUE, cursor, transform, &mut self.gl);
 
         let transform = c
             .transform
-            .trans(x + p.l2.x, y + p.l2.y)
+            .trans(p.l2.x, p.l2.y)
             .trans(-CURSOR_SIZE / 2., -CURSOR_SIZE / 2.);
 
         ellipse(BLUE, cursor, transform, &mut self.gl);
 
         let transform = c
             .transform
-            .trans(x, y)
             .trans(-CURSOR_SIZE / 2., -CURSOR_SIZE / 2.);
 
         line_from_to(BLUE, 3., p.l1, p.l2, transform, &mut self.gl);
 
         let transform = c
             .transform
-            .trans(x + p.r1.x, y + p.r1.y)
+            .trans(p.r1.x, p.r1.y)
             .trans(-CURSOR_SIZE / 2., -CURSOR_SIZE / 2.);
 
         ellipse(RED, cursor, transform, &mut self.gl);
 
         let transform = c
             .transform
-            .trans(x + p.r2.x, y + p.r2.y)
+            .trans(p.r2.x, p.r2.y)
             .trans(-CURSOR_SIZE / 2., -CURSOR_SIZE / 2.);
 
         ellipse(RED, cursor, transform, &mut self.gl);
 
         let transform = c
             .transform
-            .trans(x, y)
             .trans(-CURSOR_SIZE / 2., -CURSOR_SIZE / 2.);
 
         line_from_to(RED, 3., p.r1, p.r2, transform, &mut self.gl);
@@ -155,8 +148,8 @@ impl App {
                     MouseButton::Left => match a.state {
                         ButtonState::Press => {
                             p.l_pressed = true;
-                            p.l1 = self.mouse_pos + self.screen_offset;
-                            p.l2 = self.mouse_pos + self.screen_offset
+                            p.l1 = self.mouse_pos;
+                            p.l2 = self.mouse_pos;
                         }
                         ButtonState::Release => {
                             p.l_pressed = false;
@@ -166,8 +159,8 @@ impl App {
                     MouseButton::Right => match a.state {
                         ButtonState::Press => {
                             p.r_pressed = true;
-                            p.r1 = self.mouse_pos + self.screen_offset;
-                            p.r2 = self.mouse_pos + self.screen_offset
+                            p.r1 = self.mouse_pos;
+                            p.r2 = self.mouse_pos;
                         }
                         ButtonState::Release => {
                             p.r_pressed = false;
@@ -192,10 +185,10 @@ impl App {
                     };
                     println!("{:?}", self.mouse_pos);
                     if p.l_pressed {
-                        p.l2 = self.mouse_pos + self.screen_offset;
+                        p.l2 = self.mouse_pos;
                     }
                     if p.r_pressed {
-                        p.r2 = self.mouse_pos + self.screen_offset;
+                        p.r2 = self.mouse_pos;
                     }
                 }
                 Motion::MouseRelative(_) => {}
