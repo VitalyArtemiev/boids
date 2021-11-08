@@ -1,11 +1,11 @@
 #![feature(test)]
 #![feature(derive_default_enum)]
 extern crate test;
-use test::Bencher;
-use boids::container::{Container, ContainerState};
 use boids::boids::*;
+use boids::container::{Container, ContainerState};
 use boids::ops::Vec2f;
 use boids::player::PlayerState;
+use test::Bencher;
 
 const BOID_NUM: usize = 2000;
 
@@ -17,7 +17,7 @@ fn bench_boids(b: &mut Bencher) {
         radius: 0.0,
         ent: BoidVec::random(Vec2f::default(), BOID_NUM),
         goals: vec![],
-        state: ContainerState::Cold
+        state: ContainerState::Cold,
     };
 
     let p = PlayerState::default();
@@ -28,5 +28,3 @@ fn bench_boids(b: &mut Bencher) {
         c.process_boids(dt, &p);
     });
 }
-
-

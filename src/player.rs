@@ -1,8 +1,8 @@
 use crate::app::CLICK_PRECISION;
 use crate::container::{get_boid_container, is_boid_of_container, is_container};
 use crate::ops::Vec2f;
-use crate::player::PlayerAction::{Deselect, FormUp, Move, Select};
-use crate::world::{World, WorldId, WORLD_ID};
+use crate::player::PlayerAction::{AddFormUp, AddMove, FormUp, Move};
+use crate::world::{World, WorldId};
 use std::collections::HashSet;
 
 #[derive(Default)]
@@ -38,10 +38,10 @@ pub struct PlayerState {
 pub enum PlayerAction {
     #[default]
     None,
-    Select(WorldId),
-    Move(Vec2f),
+    Move(Vec2f, Option<Vec2f>),
+    AddMove(Vec2f, Option<Vec2f>),
     FormUp(Vec2f, Vec2f),
-    Deselect(WorldId),
+    AddFormUp(Vec2f, Vec2f),
 }
 
 impl PlayerState {
@@ -52,7 +52,7 @@ impl PlayerState {
 
         if self.l_click {
             if (self.l2 - self.l1).man() < CLICK_PRECISION {
-                //println!("LCLICK");
+                println!("LCLICK");
                 let mut ids = world.get_ids_at(self.l2);
 
                 if self.ctrl_pressed {
@@ -93,7 +93,6 @@ impl PlayerState {
                         }
                     }
 
-
                     //or select boid of previously selected container
                     for container in containers {
                         let boid = boids
@@ -117,16 +116,28 @@ impl PlayerState {
                     }
                 }
             } else {
-                //println!("LDRAG");
+                println!("LDRAG");
                 let mut ids = world.get_ids_in_rect(self.l1, self.l2);
+                if !self.ctrl_pressed {
+                    self.selected.clear();
+                }
+                for id in ids {
+                    self.selected.insert(id);
+                }
             };
         } else if self.r_click {
             if (self.r2 - self.r1).man() < CLICK_PRECISION {
-                //println!("RCLICK");
-
-                self.action = Move(self.r2) //RMB click
+                println!("RCLICK");
+                if self.shift_pressed {
+                    self.action = AddMove(self.r2, None)
+                } else {
+                    self.action = Move(self.r2, None) //RMB click
+                }
+            } else if self.shift_pressed {
+                println!("RDRAG + SHIFT");
+                self.action = AddFormUp(self.r2, self.r1) //RMB drag
             } else {
-                //println!("RDRAG");
+                println!("RDRAG");
                 self.action = FormUp(self.r2, self.r1) //RMB drag
             };
         } else {

@@ -9,6 +9,7 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 
 use crate::boids::{Boid, BoidVec};
+use crate::container::Goal;
 use crate::ops::Vec2f;
 use crate::player::PlayerState;
 use crate::world::World;
@@ -47,6 +48,7 @@ impl App {
         const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
         const TRANSP_BLUE: [f32; 4] = [0.0, 0.0, 1.0, 0.2];
         const TRANSP_ORANGE: [f32; 4] = [0.5, 0.1, 0.0, 0.1];
+        const TRANSP_RED: [f32; 4] = [0.9, 0.1, 0.0, 0.1];
 
         let cursor = ellipse::circle(0., 0., CURSOR_SIZE);
         let square = rectangle::square(0.0, 0.0, BOID_SIZE);
@@ -72,13 +74,34 @@ impl App {
                 rectangle(*boid.color, square, transform, &mut self.gl);
             }
 
-            let transform = c
-                .transform
-                .trans(x + group.center.x, y + group.center.y);
+            let transform = c.transform.trans(x + group.center.x, y + group.center.y);
 
             let group_area = ellipse::circle(0., 0., group.radius);
 
-            ellipse(TRANSP_ORANGE, group_area, transform, &mut self.gl);
+            if self.player.selected.contains(&group.id) {
+                ellipse(TRANSP_RED, group_area, transform, &mut self.gl);
+            } else {
+                ellipse(TRANSP_ORANGE, group_area, transform, &mut self.gl);
+            }
+
+            if let Some(goal) = group.goals.front() {
+                let transform = c
+                    .transform
+                    .trans(x, y)
+                    .trans(-CURSOR_SIZE / 2., -CURSOR_SIZE / 2.);
+
+                match goal {
+                    Goal::Idle(_) => {}
+                    Goal::Hold => {}
+                    Goal::Move(_, _) => {}
+                    Goal::Column(_) => {}
+                    Goal::Front(p1, p2, d) => {
+                        line_from_to(TRANSP_RED, 5., *p1, *p2, transform, &mut self.gl);
+                        line_from_to(TRANSP_RED, 5., group.center, group.center + *d, transform, &mut self.gl);
+                    }
+                }
+
+            }
         }
 
         let transform = c
@@ -134,7 +157,7 @@ impl App {
         //});
     }
 
-    pub(crate) fn handle_input(&mut self, input_event: Input) {
+    pub fn handle_input(&mut self, input_event: Input) {
         let p = &mut self.player;
 
         p.l_click = false;
@@ -151,10 +174,10 @@ impl App {
                     Key::Left => {}
                     Key::Down => {}
                     Key::Up => {}
-                    Key::LCtrl => match a.state{
-                        ButtonState::Press => {p.ctrl_pressed = true}
-                        ButtonState::Release => {p.ctrl_pressed = false}
-                    }
+                    Key::LCtrl => match a.state {
+                        ButtonState::Press => p.ctrl_pressed = true,
+                        ButtonState::Release => p.ctrl_pressed = false,
+                    },
                     Key::LShift => {}
                     Key::LAlt => {}
                     Key::LGui => {}
@@ -163,7 +186,7 @@ impl App {
                     Key::RAlt => {}
                     Key::RGui => {}
                     _ => {}
-                }
+                },
                 Button::Mouse(mb) => match mb {
                     MouseButton::Unknown => {}
                     MouseButton::Left => match a.state {

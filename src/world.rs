@@ -1,10 +1,5 @@
-use std::any::{Any, TypeId};
-use crate::boids::BoidVec;
 use crate::container::Container;
-use crate::container::ContainerState::Hot;
-use crate::container::Goal::Idle;
 use crate::ops::Vec2f;
-use array2d::Array2D;
 use serde::{Deserialize, Serialize};
 
 pub(crate) type WorldId = usize;
@@ -18,15 +13,16 @@ pub struct World {
     //pub terrain: Array2D<i8>
 }
 
-const BOID_NUM: usize = 500;
+const BOID_NUM: usize = 20;
 
 impl World {
     pub fn single_container() -> World {
         World {
-            groups: vec![Container::new(Vec2f::default(),BOID_NUM)],
+            groups: vec![Container::new(Vec2f::default(), BOID_NUM)],
         }
     }
 
+    //maybe results should be in a hashset?
     pub fn get_ids_at(&self, pos: Vec2f) -> Vec<WorldId> {
         let mut sel = vec![];
 
@@ -42,13 +38,11 @@ impl World {
         sel
     }
 
+    //maybe results should be in a hashset?
     pub(crate) fn get_ids_in_rect(&self, p0: Vec2f, p1: Vec2f) -> Vec<WorldId> {
         let mut sel = vec![];
 
-        for group in self.groups.iter() {
-
-
-        }
+        for group in self.groups.iter() {}
 
         sel
     }

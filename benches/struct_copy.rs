@@ -2,12 +2,12 @@
 #![feature(derive_default_enum)]
 #![feature(bench_black_box)]
 extern crate test;
-use test::Bencher;
-use boids::container::{Container, ContainerState};
 use boids::boids::*;
+use boids::container::{Container, ContainerState};
 use boids::ops::{Vec2, Vec2f};
 use boids::player::PlayerState;
 use core::hint::black_box;
+use test::Bencher;
 
 const ENT_NUM: usize = 2000;
 
@@ -135,8 +135,3 @@ test bench_struct_vec_clone ... bench:   1,422,417 ns/iter (+/- 110,886)
 test bench_tuple_vec_clone  ... bench:   1,412,190 ns/iter (+/- 62,980)
 
  */
-
-
-
-
-

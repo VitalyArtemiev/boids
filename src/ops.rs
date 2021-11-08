@@ -1,10 +1,22 @@
 //use std::ops::Add;
-use derive_more::{Add, Mul, Neg, Sub, AddAssign, SubAssign, MulAssign, Display, From, Into,  };
+use derive_more::{Add, AddAssign, Display, From, Into, Mul, MulAssign, Neg, Sub, SubAssign};
 use graphics::math::Vec2d;
 use serde::{Deserialize, Serialize};
 
 #[derive(
-    Debug, Copy, Clone, PartialEq, Neg, Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Serialize, Deserialize,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Neg,
+    Add,
+    Sub,
+    Mul,
+    AddAssign,
+    SubAssign,
+    MulAssign,
+    Serialize,
+    Deserialize,
 )]
 pub struct Vec2<T> {
     pub x: T,
@@ -48,6 +60,18 @@ impl Vec2f {
         if l > max {
             self.x /= l / max;
             self.y /= l / max
+        }
+    }
+
+    pub fn normalise(&self) -> Vec2f {
+        let l = self.len();
+        if l > 0. {
+            Vec2f {
+                x: self.x / l,
+                y: self.y / l
+            }
+        } else {
+            *self
         }
     }
 

@@ -41,10 +41,11 @@ impl BoidVec {
         for i in 0..num {
             let c = i as f32 / num as f32;
             boids.push(Boid {
-                pos: pos + Vec2f {
-                    x: rng.gen::<f64>() * SPREAD,
-                    y: rng.gen::<f64>() * SPREAD,
-                },
+                pos: pos
+                    + Vec2f {
+                        x: rng.gen::<f64>() * SPREAD,
+                        y: rng.gen::<f64>() * SPREAD,
+                    },
                 vel: Vec2f {
                     x: rng.gen::<f64>() * VEL_SPREAD - VEL_SPREAD / 2.,
                     y: rng.gen::<f64>() * VEL_SPREAD - VEL_SPREAD / 2.,

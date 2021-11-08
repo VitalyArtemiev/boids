@@ -8,6 +8,7 @@ mod container;
 mod ops;
 mod player;
 mod world;
+pub mod formation;
 
 use crate::app::App;
 use glutin_window::GlutinWindow as Window;
