@@ -64,7 +64,8 @@ pub struct Container {
 
     #[serde(skip)]
     #[serde(default = "crate::formation::crutch")]
-    pub formation: FormationFunction,
+    pub formation: FormationFunction,//remove this, change to enum maybe
+    pub formation_positions: Vec<Vec2f>
 }
 
 const CONTAINER_CAPACITY: usize = 1024;
@@ -116,7 +117,7 @@ impl Container {
     pub fn new(pos: Vec2f, num_boids: usize) -> Self {
         assert!(num_boids < CONTAINER_CAPACITY);
 
-        Container {
+        let mut c = Container {
             id: Container::generate_id(),
             selected: false,
             center: pos,
@@ -126,7 +127,14 @@ impl Container {
             goals: VecDeque::from([Idle(pos)]),
             state: ContainerState::Hot,
             formation: formation::default_formation,
-        }
+            formation_positions: Vec::with_capacity(num_boids)
+        };
+
+        c.formation_positions.append (&mut c.ent.pos.clone());
+
+        debug_assert!(c.formation_positions.len() == c.ent.pos.len());
+
+        c
     }
 
     pub fn assign_goals(&mut self, action: PlayerAction) {
@@ -190,6 +198,155 @@ impl Container {
         }
         None
     }
+
+    pub fn calculate_formation(&mut self, flen: f64) {
+        let form_width = (flen / FORMATION_SPACING).round() as usize;
+
+        for (i, pos) in self.formation_positions.iter_mut().enumerate() {
+            *pos = (self.formation)(i, form_width);
+        }
+    }
+
+    pub fn p_b(&mut self, dt: f64) {
+        //calc cum_dist
+        let mut cum_dist = 0.0;
+
+        //get formation, rotate according to heading
+        //after forming, rotate formation only within 1 quadrant, other dirs handled by rotating individual boids
+
+        for (i, boid) in self.ent.iter_mut().enumerate() {
+            let d = self.formation_positions[i] - *boid.pos;
+
+            let dist = d.len();
+            cum_dist += dist;
+
+            *boid.vel += d * dt;
+            boid.vel.clamp(VEL_MAX.min(dist));
+
+            *boid.pos += *boid.vel * dt;
+
+            let heading: f64 = f64::atan2(boid.vel.y, boid.vel.x);
+
+            if heading.is_normal() {
+                *boid.r = heading;
+            }
+        }
+        //project along a heading vector, maybe along a spline
+        //the more the curve, the slower the step? or adjust speed manually
+        //kinematic step
+        //do collision detection, from inside out?
+        if cum_dist < self.ent.len() as f64 * DIST_MARGIN {
+            self.goals.pop_front();
+            if self.goals.is_empty() {
+                self.goals.push_back(Goal::Hold)
+            }
+        }
+    }
+
+    pub fn process_boids1(&mut self, dt: f64) {
+        let mut cum_dist_from_dest = 0.0;
+
+        let mut pos1 = Vec2f::default();
+        let mut pos2 = Vec2f::default();
+        let mut dir = Vec2f::default();
+
+        let len = self.ent.len();
+
+        if let Some(goal) = self.goals.front() {
+            match goal {
+                Goal::Idle(_) => {
+                    self.formation = formation::idle_formation
+                }
+                Goal::Hold => {
+                    //todo: do some idly stuff
+                    return
+                }
+                Goal::Column(_) => {}
+                Goal::Front(p1, p2, d) => {
+                    pos1 = *p1;
+                    pos2 = *p2;
+                    dir = *d;
+                    self.formation = formation::phalanx_formation
+                }
+
+                Goal::Move(p, d) => {
+                    pos1 = *p;
+                    pos2 = *p;
+                    dir = *d;
+                }
+            }
+        }
+
+        let mut center = Vec2f::default();
+        let mut max_dist = 0.;
+
+        let rvec = pos2 - pos1;
+        let rlen = rvec.len();
+
+        let form_width = (rlen / FORMATION_SPACING).round() as usize;
+
+        for (cur, boid) in self.ent.iter_mut().enumerate() {
+            center += *boid.pos;
+            max_dist = (*boid.pos - self.center).len().max(max_dist);
+
+            /*let target_offset =
+                (self.formation)(cur, form_width).rot_align(rvec) * FORMATION_SPACING;*/
+
+            let target_offset =
+                p_f(cur, form_width, rvec.normalise(), dir.normalise())* FORMATION_SPACING;
+
+            let target = pos1 + target_offset;
+            let mut d = target - *boid.pos;
+            let dist = d.len();
+            cum_dist_from_dest += dist;
+
+            if dist < DIST_MARGIN {
+                *boid.state = Stationary;
+                *boid.vel = Vec2f::default();
+                continue;
+            } else {
+                *boid.state = Marching
+            }
+
+            d.clamp(ACC_MAX / 10.);
+
+            for i in 0..len {
+                //todo: this loop is problematic
+                let vec = *boid.pos - *boid.vel;
+                //let dist = (vec.len() + 0.1).ln() - 4.;
+
+                if vec.man() < DIST_REPEL {
+                    d += vec * (500.01 / len as f64) /* * (-dist)*/;
+                }
+            }
+
+            d.clamp(ACC_MAX);
+
+            *boid.vel += d * dt;
+            boid.vel.clamp(VEL_MAX.min(dist));
+
+            *boid.pos += *boid.vel * dt;
+
+            let heading: f64 = f64::atan2(boid.vel.y, boid.vel.x);
+
+            if heading.is_normal() {
+                *boid.r = heading;
+            }
+        }
+
+        center *= 1. / self.ent.len() as f64;
+
+        self.center = center;
+        self.radius = max_dist;
+
+        if cum_dist_from_dest < self.ent.len() as f64 * DIST_MARGIN {
+            self.goals.pop_front();
+            if self.goals.is_empty() {
+                self.goals.push_back(Goal::Hold)
+            }
+        }
+    }
+
 
     pub fn process_boids(&mut self, dt: f64) {
         let mut cum_dist_from_dest = 0.0;
@@ -260,7 +417,7 @@ impl Container {
 
             for i in 0..b.len() {
                 //todo: this loop is problematic
-                let vec = b.pos[cur] - b.pos[i];
+                let vec = b.pos[cur] - b.vel[i];
                 //let dist = (vec.len() + 0.1).ln() - 4.;
 
                 if vec.man() < DIST_REPEL {

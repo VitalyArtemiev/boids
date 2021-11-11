@@ -37,6 +37,7 @@ impl Drawable for BoidRef<'_> {
 
 const CURSOR_SIZE: f64 = 12.;
 
+const BLACK: [f32; 4] = [0.1, 0.1, 0.1, 1.0];
 const GREEN: [f32; 4] = [0.1, 0.5, 0.1, 1.0];
 const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
 const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
@@ -52,6 +53,14 @@ impl Drawable for Container {
         for boid in self.ent.iter() {
             //let b: Boid = boid;
             boid.draw(c, g);
+        }
+
+        for pos in self.formation_positions.iter() {
+            let transform = c.transform.trans(pos.x, pos.y);
+
+            let target_point = ellipse::circle(0., 0., 1.5);
+
+            ellipse(BLACK, target_point, transform, g);
         }
 
         let transform = c.transform.trans(self.center.x, self.center.y);

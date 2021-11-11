@@ -21,3 +21,16 @@ fn bench_boids(b: &mut Bencher) {
         c.process_boids(dt);
     });
 }
+
+#[bench]
+fn bench_boids1(b: &mut Bencher) {
+    let mut c = Container::new(Vec2f::default() ,BOID_NUM);
+
+    let p = PlayerState::default();
+
+    let dt = 0.01;
+
+    b.iter(|| {
+        c.process_boids1(dt);
+    });
+}

@@ -28,7 +28,7 @@ const CURSOR_SIZE: f64 = 12.;
 pub const CLICK_PRECISION: f64 = 12.;
 
 impl App {
-    pub(crate) fn new(gl: OpenGL) -> Self {
+    pub fn new(gl: OpenGL) -> Self {
         App {
             gl: GlGraphics::new(gl),
             player: Default::default(),
@@ -37,7 +37,7 @@ impl App {
         }
     }
 
-    pub(crate) fn render(&mut self, args: &RenderArgs) {
+    pub fn render(&mut self, args: &RenderArgs) {
         use graphics::*;
 
         let p = &self.player;
@@ -203,7 +203,7 @@ impl App {
         p.update_player_action(&self.world);
     }
 
-    pub(crate) fn update(&mut self, args: &UpdateArgs) {
+    pub fn update(&mut self, args: &UpdateArgs) {
         for group in &mut self.world.groups {
             if self.player.selected.contains(&group.id) {
                 group.selected = true;

@@ -17,7 +17,7 @@ use opengl_graphics::OpenGL;
 use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderEvent, UpdateEvent};
 use piston::window::WindowSettings;
-use piston::Event;
+use piston::{Event, Loop};
 
 //static arr : Array2D<i32> = Array2D::filled_with(0, 5, 5);
 
@@ -41,17 +41,16 @@ fn main() {
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         match e.clone() {
-            Event::Input(input, _) => app.handle_input(input),
-            Event::Loop(l) => {}
+            Event::Input(input, time) => app.handle_input(input),
+            Event::Loop(l) => {
+                match l {
+                    Loop::Render(args) => {app.render(&args);}
+                    Loop::AfterRender(_) => {}
+                    Loop::Update(args) => {app.update(&args);}
+                    Loop::Idle(_) => {}
+                }
+            }
             Event::Custom(a, b, c) => {}
-        }
-
-        if let Some(args) = e.render_args() {
-            app.render(&args);
-        }
-
-        if let Some(args) = e.update_args() {
-            app.update(&args);
         }
     }
 }

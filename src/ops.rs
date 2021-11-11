@@ -25,6 +25,15 @@ pub struct Vec2<T> {
 
 pub type Vec2f = Vec2<f64>;
 
+impl From<(i32, i32)> for Vec2f {
+    fn from(xy: (i32, i32)) -> Self {
+        Vec2f {
+            x: xy.0 as f64,
+            y: xy.1 as f64
+        }
+    }
+}
+
 impl Default for Vec2f {
     fn default() -> Self {
         let i: i32 = 0;
