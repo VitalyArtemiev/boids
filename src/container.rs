@@ -214,11 +214,24 @@ impl Container {
         //get formation, rotate according to heading
         //after forming, rotate formation only within 1 quadrant, other dirs handled by rotating individual boids
 
-        for (i, boid) in self.ent.iter_mut().enumerate() {
+        //let iter = ;
+
+        let mut slice = self.ent.as_mut_slice();
+
+        let slen = slice.len();
+
+
+        for (i, boid) in slice.iter_mut().enumerate() {
             let d = self.formation_positions[i] - *boid.pos;
 
             let dist = d.len();
             cum_dist += dist;
+
+            //let slice = self.ent.slice_mut(i+1..self.ent.len());
+
+            for j in i+1..slen {
+                slice.pos[j];
+            }
 
             *boid.vel += d * dt;
             boid.vel.clamp(VEL_MAX.min(dist));
@@ -310,10 +323,11 @@ impl Container {
 
             d.clamp(ACC_MAX / 10.);
 
-            for i in 0..len {
+            for i in cur+1..len {
                 //todo: this loop is problematic
                 let vec = *boid.pos - *boid.vel;
-                //let dist = (vec.len() + 0.1).ln() - 4.;
+
+                let dist = (vec.len() + 0.1).ln() - 4.;
 
                 if vec.man() < DIST_REPEL {
                     d += vec * (500.01 / len as f64) /* * (-dist)*/;
@@ -415,7 +429,7 @@ impl Container {
 
             d.clamp(ACC_MAX / 10.);
 
-            for i in 0..b.len() {
+            for i in cur+1..b.len() {
                 //todo: this loop is problematic
                 let vec = b.pos[cur] - b.vel[i];
                 //let dist = (vec.len() + 0.1).ln() - 4.;
