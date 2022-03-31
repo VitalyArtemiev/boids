@@ -204,6 +204,8 @@ impl App {
     }
 
     pub fn update(&mut self, args: &UpdateArgs) {
+        self.world.process_interactions();
+
         for group in &mut self.world.groups {
             if self.player.selected.contains(&group.id) {
                 group.selected = true;

@@ -8,6 +8,7 @@ use crate::app::CLICK_PRECISION;
 use crate::boids::BoidState::{Marching, Stationary};
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize};
+use crate::container::ContainerState::Cold;
 
 /// Cold  means calculations only on the whole container
 /// Warm allows collision checks
@@ -20,55 +21,28 @@ pub enum ContainerState {
     Hot,
 }
 
-impl ContainerState {
-    fn minimize(&self) {}
-
-    fn restore(&self) {
-        if *self != ContainerState::Cold {}
-    }
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum Goal {
-    Idle(Vec2f),
-    Hold,
-    Move(Vec2f, Vec2f),
-    Column(Vec2f),
-    Front(Vec2f, Vec2f, Vec2f),
-}
-
-use crate::boids::BoidVec;
-use crate::container::Goal::Idle;
-use crate::formation;
-use crate::formation::{FormationFunction, p_f};
 use crate::ops::Vec2f;
-use crate::player::PlayerAction::FormUp;
 use crate::player::{PlayerAction, PlayerState};
 use crate::world::{Identifiable, WORLD_ID, WorldId};
 
-#[derive(Serialize, Deserialize)]
-pub struct Container {
-    pub id: WorldId,
+pub trait ContainerTrait {
+    fn cur_state(&self) -> ContainerState {
+        return Cold
+    }
 
-    pub selected: bool,
+    fn to_cold(&mut self) {
 
-    pub center: Vec2f,
-    pub direction: Vec2f,
-    pub radius: f64,
+    }
 
-    pub ent: BoidVec,
-    ///.first is next goal
-    pub goals: VecDeque<Goal>,
+    fn to_warm(&mut self) {
 
-    pub state: ContainerState,
+    }
 
-    #[serde(skip)]
-    #[serde(default = "crate::formation::crutch")]
-    pub formation: FormationFunction,//remove this, change to enum maybe
-    pub formation_positions: Vec<Vec2f>
+    fn to_hot(&mut self) {
+
+    }
 }
 
-const CONTAINER_CAPACITY: usize = 1024;
 const ACC_MAX: f64 = 1000.;
 const VEL_MAX: f64 = 100.;
 const DIST_REPEL: f64 = 20.;
@@ -76,17 +50,11 @@ const DIST_MARGIN: f64 = 1.;
 pub const FORMATION_SPACING: f64 = 24.;
 const COLUMN_WIDTH: i32 = 4;
 
-pub static NUM_CONTAINERS: AtomicUsize = AtomicUsize::new(0);
 
 //const STRUCTURE_BITS: usize = 0b0011_1111_1111_0000_0000_0000_0000_0000; this is more robust
 //const CONTAINER_BITS: usize = 0b0000_0000_0000_1111_1111_1100_0000_0000;
 
-impl Identifiable for Container {
-    fn generate_id() -> WorldId {
-        let nc = NUM_CONTAINERS.fetch_add(1, Ordering::Relaxed);
-        CONTAINER_CAPACITY * (nc + 1)
-    }
-}
+
 
 pub fn is_container(id: WorldId) -> bool {
     id % CONTAINER_CAPACITY == 0
@@ -119,15 +87,8 @@ impl Container {
 
         let mut c = Container {
             id: Container::generate_id(),
-            selected: false,
-            center: pos,
-            direction: Vec2f{x: 1.,y: 0.},
-            radius: 0.0,
             ent: BoidVec::random(pos, num_boids),
-            goals: VecDeque::from([Idle(pos)]),
             state: ContainerState::Hot,
-            formation: formation::default_formation,
-            formation_positions: Vec::with_capacity(num_boids)
         };
 
         c.formation_positions.append (&mut c.ent.pos.clone());
@@ -137,30 +98,7 @@ impl Container {
         c
     }
 
-    pub fn assign_goals(&mut self, action: PlayerAction) {
-        match action {
-            PlayerAction::None => {}
-            PlayerAction::Move(pos, dir) => {
-                self.goals.clear();
-                self.goals.push_back(Goal::Move(pos, dir.unwrap_or(self.direction)))
-            }
-            PlayerAction::AddMove(pos, dir) => {
-                self.goals.push_back(Goal::Move(pos, dir.unwrap_or(self.direction)))
-            }
-            PlayerAction::FormUp(pos1, pos2) => {
-                let center_front = (pos2 - pos1) * 0.5;
-                let dir = center_front - self.center;
 
-                self.goals.clear();
-                self.goals.push_back(Goal::Front(pos2, pos1, dir))
-            }
-            PlayerAction::AddFormUp(pos1, pos2) => {
-                let center_front = (pos2 - pos1) * 0.5;
-                let dir = center_front - self.center;
-
-                self.goals.push_back(Goal::Front(pos2, pos1, dir))
-            }
-        }
     }
 
     pub fn is_in_bounds(&self, p: Vec2f) -> bool {
@@ -229,9 +167,9 @@ impl Container {
 
             //let slice = self.ent.slice_mut(i+1..self.ent.len());
 
-            for j in i+1..slen {
+            /*for j in i+1..slen {
                 slice.pos[j];
-            }
+            }*/
 
             *boid.vel += d * dt;
             boid.vel.clamp(VEL_MAX.min(dist));

@@ -11,6 +11,7 @@ mod world;
 pub mod formation;
 mod drawable;
 
+use std::ops::AddAssign;
 use crate::app::App;
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::OpenGL;
