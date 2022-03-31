@@ -7,6 +7,13 @@ use crate::player::PlayerAction;
 pub trait Clickable {
     fn is_on_screen(&self) -> bool;
     fn on_click(&self);
+    
+    fn is_in_bounds(&self, p: Vec2f) -> bool {
+        /*let t: Triangle<f64> = [[0.; 2]; 3];
+        inside_triangle(t, p.into());*/
+
+        (p - self.center).len() < self.radius
+    }
 }
 
 pub trait Selectable {

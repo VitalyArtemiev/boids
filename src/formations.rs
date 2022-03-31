@@ -160,8 +160,37 @@ impl Controllable for Company {
 
 }
 
-pub struct Battalion {
+pub struct DrillStep {
+    company_type_id: usize,
+    company_formation: FormationFunction,
+    pos: Vec2f,
+    dir: Vec2f,
+    time: f32
+}
 
+pub struct Drill {
+    steps: Vec<DrillStep>
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Battalion {
+    pub center: Vec2f,
+    pub direction: Vec2f,
+    pub select_radius: f64,
+    pub interaction_radius: f64,
+
+    ///.first is next goal
+    pub goals: VecDeque<Goal>,
+
+    pub selected: bool,
+
+    pub fatigue: f32,
+    pub morale: f32,
+
+    pub formation_positions: Vec<Vec2f>,
+    pub known_drills: Vec<Drill>,
+
+    pub troops: Vec<Company>,
 }
 
 impl Clickable for Battalion {
