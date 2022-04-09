@@ -1,14 +1,21 @@
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use serde::{Deserialize, Serialize};
-use crate::container::{Container, ContainerTrait};
+use crate::container::{Container};
 use crate::ops::Vec2f;
 use crate::traits::{Clickable, Controllable, Selectable};
 
 use rand::Rng;
-use crate::container::FORMATION_SPACING;
+use crate::boids::BoidVec;
 use crate::formations::Goal::Idle;
 use crate::world::{Identifiable, WorldId};
+
+const ACC_MAX: f64 = 1000.;
+const VEL_MAX: f64 = 100.;
+const DIST_REPEL: f64 = 20.;
+const DIST_MARGIN: f64 = 1.;
+pub const FORMATION_SPACING: f64 = 24.;
+const COLUMN_WIDTH: i32 = 4;
 
 pub type FormationFunction = fn(usize, usize) -> Vec2f;
 
@@ -129,6 +136,64 @@ impl Company {
             troop_desc: TroopDesc::default(),
         };
     }
+
+    pub fn calculate_formation(&mut self, flen: f64) {
+        let form_width = (flen / FORMATION_SPACING).round() as usize;
+
+        for (i, pos) in self.formation_positions.iter_mut().enumerate() {
+            *pos = (self.formation)(i, form_width);
+        }
+    }
+
+    pub fn p_b(&mut self, dt: f64) {
+        //calc cum_dist
+        let mut cum_dist = 0.0;
+
+        //get formation, rotate according to heading
+        //after forming, rotate formation only within 1 quadrant, other dirs handled by rotating individual boids
+
+        //let iter = ;
+
+        let mut slice = self.ent.as_mut_slice();
+
+        let slen = slice.len();
+
+
+        for (i, boid) in slice.iter_mut().enumerate() {
+            let d = self.formation_positions[i] - *boid.pos;
+
+            let dist = d.len();
+            cum_dist += dist;
+
+            //let slice = self.ent.slice_mut(i+1..self.ent.len());
+
+            /*for j in i+1..slen {
+                slice.pos[j];
+            }*/
+
+            *boid.vel += d * dt;
+            boid.vel.clamp(VEL_MAX.min(dist));
+
+            *boid.pos += *boid.vel * dt;
+
+            let heading: f64 = f64::atan2(boid.vel.y, boid.vel.x);
+
+            if heading.is_normal() {
+                *boid.r = heading;
+            }
+        }
+        //project along a heading vector, maybe along a spline
+        //the more the curve, the slower the step? or adjust speed manually
+        //kinematic step
+        //do collision detection, from inside out?
+        if cum_dist < self.ent.len() as f64 * DIST_MARGIN {
+            self.goals.pop_front();
+            if self.goals.is_empty() {
+                self.goals.push_back(Goal::Hold)
+            }
+        }
+    }
+
 }
 
 const COMPANY_CAPACITY: usize = 256;
@@ -153,11 +218,19 @@ impl Clickable for Company {
 }
 
 impl Selectable for Company {
-
+    fn deselect(&self) {
+        todo!()
+    }
 }
 
 impl Controllable for Company {
+    fn new_order(&self, goal: Goal) {
+        todo!()
+    }
 
+    fn add_order(&self, goal: Goal) {
+        todo!()
+    }
 }
 
 pub struct DrillStep {
@@ -194,13 +267,27 @@ pub struct Battalion {
 }
 
 impl Clickable for Battalion {
+    fn is_on_screen(&self) -> bool {
+        todo!()
+    }
 
+    fn on_click(&self) {
+        todo!()
+    }
 }
 
 impl Selectable for Battalion  {
-
+    fn deselect(&self) {
+        todo!()
+    }
 }
 
 impl Controllable for Battalion {
+    fn new_order(&self, goal: Goal) {
+        todo!()
+    }
 
+    fn add_order(&self, goal: Goal) {
+        todo!()
+    }
 }

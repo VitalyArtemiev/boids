@@ -1,8 +1,16 @@
 use std::collections::VecDeque;
-use crate::container::Goal;
 use crate::formations::Goal;
 use crate::ops::Vec2f;
 use crate::player::PlayerAction;
+use crate::world::WorldId;
+
+//const STRUCTURE_BITS: usize = 0b0011_1111_1111_0000_0000_0000_0000_0000; this is more robust
+//const CONTAINER_BITS: usize = 0b0000_0000_0000_1111_1111_1100_0000_0000;
+
+pub trait Identifiable {
+    fn get_id(&self) -> WorldId;
+    fn get_member_ids(&self) -> Vec<WorldId>;
+}
 
 pub trait Clickable {
     fn is_on_screen(&self) -> bool;
@@ -14,6 +22,16 @@ pub trait Clickable {
 
         (p - self.center).len() < self.radius
     }
+
+    //todo: bench normal loop; should be zero-cost
+    /*pub fn get_boid_at(&self, c: Vec2f) -> Option<WorldId> {
+        for (i, p) in self.ent.pos.iter().enumerate() {
+            if (*p - c).man() < CLICK_PRECISION {
+                return Some(self.id + i + 1);
+            }
+        }
+        None
+    }*/
 }
 
 pub trait Selectable {

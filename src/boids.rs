@@ -21,7 +21,7 @@ impl Default for BoidState {
 }
 
 #[derive(Copy, Clone, StructOfArray, Default, Serialize, Deserialize)]
-#[soa_derive = "Serialize, Deserialize"]
+#[soa_derive(Serialize, Deserialize)]
 pub struct Boid {
     pub pos: Vec2f,
     pub vel: Vec2f,

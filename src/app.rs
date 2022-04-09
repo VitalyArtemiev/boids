@@ -9,7 +9,6 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 
 use crate::boids::{Boid, BoidVec};
-use crate::container::Goal;
 use crate::drawable::Drawable;
 use crate::ops::Vec2f;
 use crate::player::PlayerState;

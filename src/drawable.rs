@@ -1,11 +1,12 @@
 extern crate lazy_static;
 use crate::boids::BoidRef;
-use crate::container::{Container, Goal};
+use crate::container::{Container};
 use crate::ops::Vec2f;
 use graphics::types::Rectangle;
 use graphics::*;
 use lazy_static::lazy_static;
 use std::sync::atomic::AtomicPtr;
+use crate::formations::Goal;
 
 pub trait Drawable {
     fn draw<G>(&self, c: Context, g: &mut G)

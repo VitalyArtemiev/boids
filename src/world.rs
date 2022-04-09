@@ -3,7 +3,7 @@ use crate::container::Container;
 use crate::ops::Vec2f;
 use serde::{Deserialize, Serialize};
 use crate::formations::{Battalion, Company};
-use crate::interaction::manage_interaction;
+use crate::interaction::Interactable;
 
 pub(crate) type WorldId = usize;
 
@@ -11,8 +11,8 @@ pub(crate) type WorldId = usize;
 pub const WORLD_ID: WorldId = 0;
 
 #[derive(Serialize, Deserialize)]
-pub struct World {
-    pub groups: Vec<Any>,
+pub struct World<'a> {
+    pub groups: Vec<&'a dyn Interactable>,
 
     //pub nodes: Graph,
     //pub terrain: Array2D<i8>
@@ -20,8 +20,8 @@ pub struct World {
 
 const BOID_NUM: usize = 20;
 
-impl World {
-    pub fn single_container() -> World {
+impl World<'_> {
+    pub fn single_container<'a>() -> World<'a> {
         World {
             groups: vec![Container::new(Vec2f::default(), BOID_NUM)],
         }
@@ -53,15 +53,9 @@ impl World {
     }
 
     pub(crate) fn process_interactions(&self) {
-
-        let companies = self.groups.iter().filter(|g| {g.is(Company)}).map(|c| c as Company);
-        let battalions = self.groups.iter().filter(|g| {g.is(Company)}).map(|b| b as Battalion);
-        //self.groups.group_by(|g1, g2| g1.type_id() == g2.type_id());
-
-        for mut company in companies {
-            for mut battalion in battalions {
-                battalion.manage_interaction(&mut company);
-                //manage_interaction(battalion, company);
+        for mut group in self.groups {
+            for mut other in self.groups {
+                group.manage_interaction(&mut other);
             }
         }
     }

@@ -8,7 +8,7 @@ mod container;
 mod ops;
 mod player;
 mod world;
-pub mod formation;
+pub mod formations;
 mod drawable;
 
 use std::ops::AddAssign;
