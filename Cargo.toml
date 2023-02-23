@@ -11,11 +11,12 @@ rand = "0.8.5"
 derive_more = "0.99.17"
 lazy_static = "1.4.0"
 serde = { version = "1.0.136", features = ["derive"] }
+sled = "0.34.7"
 
-array2d = "0.2.1"
+array2d = "0.3.0"
 petgraph = "0.6.0"
 
-soa_derive = "0.11.0"
+soa_derive = "0.12.0"
 #soak
 
 piston = "0.53.1"

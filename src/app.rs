@@ -5,11 +5,12 @@ extern crate piston;
 
 use self::piston::{Button, ButtonState, Input, Key, Motion, MouseButton};
 use opengl_graphics::{GlGraphics, OpenGL};
-use piston::event_loop::{EventSettings, Events};
+use piston::event_loop::{Events, EventSettings};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 
 use crate::boids::{Boid, BoidVec};
 use crate::drawable::Drawable;
+use crate::units::Unit;
 use crate::ops::Vec2f;
 use crate::player::PlayerState;
 use crate::world::World;
@@ -32,7 +33,7 @@ impl App {
             gl: GlGraphics::new(gl),
             player: Default::default(),
             mouse_pos: Default::default(),
-            world: World::single_container(),
+            world: World::single_company(),
         }
     }
 
@@ -58,7 +59,11 @@ impl App {
         clear(GREEN, &mut self.gl);
 
         for group in &mut self.world.groups {
-            group.draw(c,&mut self.gl)
+            match group {
+                Unit::BasicUnit(company) => {company.draw(c, &mut self.gl)}
+                Unit::CompositeUnit(b) => {}
+            }
+            //group.draw(c,&mut self.gl)
         }
 
         let transform = c

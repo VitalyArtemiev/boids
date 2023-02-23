@@ -2,7 +2,8 @@ use std::any::Any;
 use crate::container::Container;
 use crate::ops::Vec2f;
 use serde::{Deserialize, Serialize};
-use crate::formations::{Battalion, Company};
+use crate::drawable::Drawable;
+use crate::units::{BasicUnit, CompositeUnit, Unit};
 use crate::interaction::Interactable;
 
 pub(crate) type WorldId = usize;
@@ -11,8 +12,8 @@ pub(crate) type WorldId = usize;
 pub const WORLD_ID: WorldId = 0;
 
 #[derive(Serialize, Deserialize)]
-pub struct World<'a> {
-    pub groups: Vec<&'a dyn Interactable>,
+pub struct World {
+    pub groups: Vec<Unit>,
 
     //pub nodes: Graph,
     //pub terrain: Array2D<i8>
@@ -20,10 +21,24 @@ pub struct World<'a> {
 
 const BOID_NUM: usize = 20;
 
-impl World<'_> {
-    pub fn single_container<'a>() -> World<'a> {
+impl Default for World {
+    fn default() -> Self {
         World {
-            groups: vec![Container::new(Vec2f::default(), BOID_NUM)],
+            groups: vec![]
+        }
+    }
+}
+
+impl World {
+    pub fn single_company() -> Self {
+        World {
+            groups: vec![Unit::BasicUnit(BasicUnit::new(Vec2f::default(), BOID_NUM))],
+        }
+    }
+
+    pub fn single_battalion(num_companies: u8, units_per_company: u8) -> Self {
+        World {
+            groups: vec![Unit::CompositeUnit(CompositeUnit::new(Vec2f::default(), BOID_NUM))],
         }
     }
 
@@ -61,8 +76,4 @@ impl World<'_> {
     }
 
     //pub fn assign
-}
-
-pub trait Identifiable {
-    fn generate_id() -> WorldId;
 }

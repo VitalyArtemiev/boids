@@ -3,7 +3,7 @@ use crate::ops::Vec2f;
 use crate::player::PlayerState;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use soa_derive::StructOfArray;
+use soa_derive::{SoAIndex, StructOfArray};
 
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub enum BoidState {

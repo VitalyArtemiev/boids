@@ -8,8 +8,10 @@ mod container;
 mod ops;
 mod player;
 mod world;
-pub mod formations;
+pub mod units;
 mod drawable;
+mod formations;
+mod traits;
 
 use std::ops::AddAssign;
 use crate::app::App;

@@ -76,7 +76,8 @@ impl PlayerState {
                 } else {
                     println!("ids {:?}", ids);
                     let containers: Vec<WorldId> =
-                        ids.drain_filter(|id| is_container(*id)).collect();
+                        //ids.drain_filter(|id| is_container(*id)).collect();
+                    ids.clone();
                     let boids = ids;
 
                     println!("c {:?}", containers);
@@ -87,7 +88,7 @@ impl PlayerState {
                         if self.selected.contains(boid) {
                             //println!("select cont");
                             self.selected.clear();
-                            self.selected.insert(get_boid_container(*boid).unwrap());
+                            //self.selected.insert(get_boid_container(*boid).unwrap());
                             println!("SELECTING: {:?}", self.selected);
                             return;
                         }
@@ -97,7 +98,7 @@ impl PlayerState {
                     for container in containers {
                         let boid = boids
                             .iter()
-                            .find(|&id| is_boid_of_container(*id, container));
+                            .find(|&id| true/*is_boid_of_container(*id, container)*/);
                         if self.selected.contains(&container) {
                             //println!("select boid");
 

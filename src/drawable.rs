@@ -6,7 +6,7 @@ use graphics::types::Rectangle;
 use graphics::*;
 use lazy_static::lazy_static;
 use std::sync::atomic::AtomicPtr;
-use crate::formations::Goal;
+use crate::units::Goal;
 
 pub trait Drawable {
     fn draw<G>(&self, c: Context, g: &mut G)
